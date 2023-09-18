@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">Record Ride</string>
+    <string name="title_activity_maps">Record Ride</string>
+    <string name="latitude_label">Latitude</string>
+    <string name="longitude_label">Longitude</string>
+    <string name="last_update_time_label">Last location update time</string>
+
+    <string name="start_updates">Start Ride</string>
+    <string name="stop_updates">Stop Ride</string>
+
+    <string name="location_settings_inadequate_warning">The location settings on the device are not
+        adequate to run this sample. Fix in Settings.</string>
+
+    <string name="permission_rationale">Location permission is needed for core functionality</string>
+    <string name="permission_denied_explanation">Permission was denied, but is needed for core
+        functionality.</string>
+    <string name="settings">Settings</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Please enter valid Password</string>
+    <string name="login_failed">"Invalid Username or Password"</string>
+    <string name="locked_account">"Your account has been locked. Please contact admin."</string>
+    <string name="title_activity_dashboard">DashboardActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Mr. Amish Anand Patel</string>
+    <string name="nav_header_subtitle">amish.patel@gmail.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_statistics">Statistics</string>
+    <string name="menu_ride_details">Ride Details</string>
+    <string name="menu_attendance">Attendance</string>
+    <string name="title_activity_bottom_navigation">BottomNavigationActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Attendance</string>
+    <string name="title_notifications">Statistics</string>
+    <string name="title_ride_details">Ride Details</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="title_activity_splash_screen">SplashScreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+</resources>

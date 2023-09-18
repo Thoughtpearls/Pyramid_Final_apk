@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2017 Google, Inc.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.recordride.RecordRideActivity">
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:navigationIcon="?attr/homeAsUpIndicator"
+            app:popupTheme="@style/AppTheme.PopupOverlay"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/appbar"
+        android:layout_above="@+id/duration_layout"
+        />
+
+    <Button
+        android:id="@+id/start_updates_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/duration_layout"
+        android:layout_centerInParent="true"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="20dp"
+        android:layout_weight="1"
+        android:background="@drawable/button_background"
+        android:fontFamily="@font/epilogue_regular"
+        android:gravity="center"
+        android:onClick="startUpdatesButtonHandler"
+        android:text="@string/start_updates"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="16dp"
+        android:visibility="visible" />
+
+    <Button
+        android:id="@+id/stop_updates_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/duration_layout"
+        android:layout_centerInParent="true"
+        android:background="@drawable/button_background"
+        android:fontFamily="@font/seg_ui_semibold"
+        android:textAllCaps="false"
+        android:textColor="@color/colorButtonText"
+        android:textSize="16dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="20dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:visibility="gone"
+        android:onClick="stopUpdatesButtonHandler"
+        android:text="@string/stop_updates"/>
+    <GridLayout
+        android:id="@+id/duration_layout"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_alignParentBottom="true"
+        android:rowCount="1"
+        android:columnCount="2"
+        android:background="@color/background">
+        <LinearLayout
+            android:layout_row="0"
+            android:layout_column="0"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:ignore="DuplicateIds">
+            <TextView
+                android:id="@+id/total_duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="00:00:00"
+                android:gravity="center"
+                android:layout_marginLeft="@dimen/small_margin"
+                android:layout_marginStart="@dimen/small_margin"
+                android:textSize="34sp"
+                android:textColor="@color/white"
+                />
+            <TextView
+                android:id="@+id/duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Time"
+                android:gravity="center"
+                android:layout_marginLeft="@dimen/small_margin"
+                android:layout_marginStart="@dimen/small_margin"
+                android:textSize="@dimen/default_text_size"
+                android:textColor="@color/white"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_row="0"
+            android:layout_column="1"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:ignore="DuplicateIds">
+            <TextView
+                android:id="@+id/total_distance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="100.00"
+                android:gravity="center"
+                android:layout_marginLeft="@dimen/small_margin"
+                android:layout_marginStart="@dimen/small_margin"
+                android:textSize="34sp"
+                android:textColor="@color/white"
+                />
+            <TextView
+                android:id="@+id/distance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Distance(km)"
+                android:gravity="center"
+                android:layout_marginLeft="@dimen/small_margin"
+                android:layout_marginStart="@dimen/small_margin"
+                android:textSize="@dimen/default_text_size"
+                android:textColor="@color/white"
+                />
+        </LinearLayout>
+    </GridLayout>
+
+</RelativeLayout>

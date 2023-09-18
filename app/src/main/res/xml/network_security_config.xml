@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <base-config>
+        <trust-anchors>
+            <certificates src="system"/>
+            <certificates src="@raw/certifile"
+                tools:ignore="NetworkSecurityConfig" />
+            <certificates src="user"/>
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">202.179.75.35</domain>
+        <domain includeSubdomains="true">43.204.194.87</domain>
+        <domain includeSubdomains="true">13.234.255.67</domain>
+        <domain includeSubdomains="true">pyramidemployeetracestorage.s3.ap-south-1.amazonaws.com</domain>
+        <domain includeSubdomains="true">firebase-settings.crashlytics.com</domain>
+        <trustkit-config enforcePinning="true"></trustkit-config>
+    </domain-config>
+</network-security-config>
+<!--
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <base-config>
+        <trust-anchors>
+            <certificates src="system">
+            </certificates>
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">103.195.80.253</domain>
+        <domain includeSubdomains="true">pyramidemployeetracestorage.s3.ap-south-1.amazonaws.com</domain>
+        <trust-anchors>
+            <certificates src="@raw/mycertification"
+                tools:ignore="NetworkSecurityConfig" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>-->

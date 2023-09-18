@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    android:id="@+id/swipeRefreshLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.statistics.StatisticsFragment"
+        android:background="@color/background"
+        >
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:ignore="MissingConstraints">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/statisticCardView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:elevation="20dp"
+                    app:cardCornerRadius="20dp"
+                    android:background="@color/white"
+                    >
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/white"
+                        android:orientation="vertical"
+                        android:padding="10dp"
+                        android:paddingBottom="20dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/border">
+
+                            <Spinner
+                                android:id="@+id/spinner"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginTop="20dp"
+                                android:layout_marginBottom="20dp"
+                                android:minHeight="48dp" />
+                        </LinearLayout>
+
+
+                        <View
+                            style="@style/Divider"
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_margin="20dp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:weightSum="2">
+
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="80dp"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_marginTop="8dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:background="@drawable/border"
+                                    android:orientation="horizontal"
+                                    android:padding="60dp">
+
+                                </LinearLayout>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_marginStart="20dp"
+                                    android:layout_marginTop="-2dp"
+                                    android:layout_marginEnd="20dp"
+                                    android:layout_marginBottom="20dp"
+                                    android:background="@color/white"
+                                    android:clipToOutline="true"
+                                    android:fontFamily="@font/epilogue_regular"
+                                    android:paddingLeft="10dp"
+                                    android:paddingRight="10dp"
+                                    android:text="Ride Duration"
+                                    android:textAlignment="center"
+                                    android:textColor="@color/black"
+                                    android:textSize="12sp" />
+
+                                <TextView
+                                    android:id="@+id/durationTextView"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    android:drawableLeft="@drawable/ic_baseline_access_time_24"
+                                    android:drawablePadding="1dp"
+                                    android:drawableTint="@color/black"
+                                    android:gravity="center"
+                                    android:padding="8dp"
+                                    android:textColor="@color/black">
+
+                                </TextView>
+
+                            </RelativeLayout>
+
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="80dp"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_marginTop="8dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:background="@drawable/border"
+                                    android:orientation="horizontal"
+                                    android:padding="60dp">
+
+                                </LinearLayout>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_marginStart="20dp"
+                                    android:layout_marginTop="-2dp"
+                                    android:layout_marginEnd="20dp"
+                                    android:layout_marginBottom="20dp"
+                                    android:background="@color/white"
+                                    android:clipToOutline="true"
+                                    android:fontFamily="@font/epilogue_regular"
+                                    android:paddingLeft="10dp"
+                                    android:paddingRight="10dp"
+                                    android:text="Distance Travelled"
+                                    android:textAlignment="center"
+                                    android:textColor="@color/black"
+                                    android:textSize="12sp" />
+
+                                <TextView
+                                    android:id="@+id/distanceTextView"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    android:drawableLeft="@drawable/ic_baseline_location_on_24"
+                                    android:drawablePadding="5dp"
+                                    android:drawableTint="@color/black"
+                                    android:gravity="center"
+                                    android:text="0 Km"
+                                    android:textColor="@color/black">
+
+                                </TextView>
+
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            style="@style/Divider"
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_margin="20dp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:background="@color/white"
+                            android:orientation="horizontal"
+                            android:weightSum="1">
+
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@color/white">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="80dp"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_marginTop="8dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:background="@drawable/border"
+                                    android:orientation="horizontal"
+                                    android:padding="60dp">
+
+                                </LinearLayout>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_marginStart="20dp"
+                                    android:layout_marginTop="-2dp"
+                                    android:layout_marginEnd="20dp"
+                                    android:layout_marginBottom="20dp"
+                                    android:background="@color/white"
+                                    android:clipToOutline="true"
+                                    android:fontFamily="@font/epilogue_regular"
+                                    android:paddingLeft="10dp"
+                                    android:paddingRight="10dp"
+                                    android:text="Reimbursement Amount"
+                                    android:textAlignment="center"
+                                    android:textColor="@color/black"
+                                    android:textSize="12sp" />
+
+                                <TextView
+                                    android:id="@+id/reimbursementTextView"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    android:drawableLeft="@drawable/ic_baseline_access_time_24"
+                                    android:drawablePadding="5dp"
+                                    android:drawableTint="@color/black"
+                                    android:gravity="center"
+                                    android:text="Rs 0"
+                                    android:textColor="@color/black">
+
+                                </TextView>
+
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <Spinner
+                            android:id="@+id/listOfRides"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginRight="10dp" />
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/errorAnimation"
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:lottie_autoPlay="true"
+                    app:lottie_loop="true"
+                    app:lottie_rawRes="@raw/pageerror"
+                    tools:ignore="MissingConstraints" />
+
+                <!-- <Spinner
+                     android:id="@+id/listOfRides"
+                     android:layout_width="match_parent"
+                     android:layout_height="40dp"
+                     android:layout_marginTop="20dp"
+                     android:layout_marginLeft="10dp"
+                     android:layout_marginRight="10dp"
+                     />-->
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

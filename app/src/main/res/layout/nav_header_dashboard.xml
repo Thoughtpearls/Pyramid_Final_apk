@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/side_nav_bar"
+    android:gravity="start"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="40dp"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark"
+    >
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/profile_image"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:src="@drawable/profile_image"
+                android:layout_gravity="center"
+                app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+                app:strokeColor="@color/colorButton"
+                app:strokeWidth="1dp"
+                />
+
+            <TextView
+                android:id="@+id/full_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/nav_header_vertical_spacing"
+                android:text="@string/nav_header_title"
+                android:textAlignment="center"
+                android:fontFamily="@font/epilogue_bold"
+                android:textSize="22sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+            <TextView
+                android:visibility="gone"
+                android:id="@+id/email_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/nav_header_subtitle"
+                android:textAlignment="center"
+                android:fontFamily="@font/epilogue_bold"
+                />
+
+            <TextView
+                android:id="@+id/employee_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="E-9304334"
+                android:textAlignment="center"
+                android:fontFamily="@font/epilogue_bold"
+                android:visibility="gone"
+                />
+
+            <TextView
+                android:id="@+id/branch_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Bhilwada"
+                android:textAlignment="center"
+                android:fontFamily="@font/epilogue_bold"
+                />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/profile_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginTop="20dp"
+                android:layout_toLeftOf="@+id/centerShim"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="8dp"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/father_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/ic_baseline_co_present_24"
+                        android:drawablePadding="10dp"
+                        android:drawableTint="@color/colorButton"
+                        android:fontFamily="@font/epilogue_regular"
+                        android:padding="15dp"
+                        android:text="Anand T Patel"
+                        android:textColor="@color/textcolor" />
+
+                    <TextView
+
+                        android:id="@+id/date_of_birth"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/ic_baseline_calendar_month_24"
+                        android:drawablePadding="10dp"
+                        android:drawableTint="@color/colorButton"
+                        android:fontFamily="@font/epilogue_regular"
+                        android:padding="15dp"
+                        android:text="27 April 1979"
+                        android:textColor="@color/textcolor" />
+
+                    <TextView
+                        android:id="@+id/uid"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/ic_baseline_alternate_email_24"
+                        android:drawablePadding="10dp"
+                        android:drawableTint="@color/colorButton"
+                        android:padding="15dp"
+                        android:fontFamily="@font/epilogue_regular"
+                        android:text="2233 2245 6654 7788"
+                        android:textColor="@color/textcolor" />
+
+                    <TextView
+                        android:id="@+id/address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/ic_baseline_location_on_24"
+                        android:drawablePadding="10dp"
+                        android:drawableTint="@color/colorButton"
+                        android:padding="15dp"
+                        android:fontFamily="@font/epilogue_regular"
+                        android:text="E2C,Rigal road, Rajashtan E2C,Rigal road, Rajashtan"
+                        android:textColor="@color/textcolor" />
+                </LinearLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/vehicle_lable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Vehicle Details"
+                android:textColor="@color/white"
+                android:fontFamily="@font/epilogue_bold"
+                android:textSize="18sp"
+                android:layout_marginTop="10dp"
+                />
+            <androidx.cardview.widget.CardView
+                android:id="@+id/vehicle_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginTop="20dp"
+                android:layout_toLeftOf="@+id/centerShim"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="8dp"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/vehicle_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/ic_baseline_directions_car_24"
+                        android:drawablePadding="10dp"
+                        android:drawableTint="@color/colorButton"
+                        android:padding="15dp"
+                        android:text="Honda Bike"
+                        android:textColor="@color/textcolor" />
+
+                    <TextView
+                        android:id="@+id/vehicle_number"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/ic_baseline_numbers_24"
+                        android:drawablePadding="10dp"
+                        android:drawableTint="@color/colorButton"
+                        android:padding="15dp"
+                        android:text="MH-21 ER9800"
+                        android:textColor="@color/textcolor" />
+
+                </LinearLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+            <Button
+                android:id="@+id/logoutButton"
+                android:layout_margin="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Logout"
+                android:textColor="@color/black"
+                android:layout_gravity="center"
+                />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/applogo"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="App version : 1.0.1"
+                android:textSize="20sp"
+                android:textAlignment="center"
+                android:fontFamily="@font/epilogue_bold"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="21 August 2023"
+                android:textSize="20sp"
+                android:textAlignment="center"
+                android:fontFamily="@font/epilogue_bold"
+                />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

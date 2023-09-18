@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "239681363997",
+    "project_id": "conveyance-47d7b",
+    "storage_bucket": "conveyance-47d7b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:239681363997:android:f527a848b36c14ab1166f4",
+        "android_client_info": {
+          "package_name": "com.thoughtpearl.conveyance"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "239681363997-778hbe2p1iea0mojal47kn11ujl6impm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKq4XtyaLLU03HxD2crRcIrsE7PrAoWX8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "239681363997-778hbe2p1iea0mojal47kn11ujl6impm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
