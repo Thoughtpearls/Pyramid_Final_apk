@@ -612,7 +612,7 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
         }
     }
 
-    public void startRide(Ride ride, boolean isUseGps) {
+    public void startRide(Ride ride) {
         mMap.clear();
         totalDistance = 0.0f;
         locationList = new ArrayList<>();
@@ -628,7 +628,7 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
             runOnUiThread(() -> {
                 Bundle rideBundle = new Bundle();
                 rideBundle.putParcelable("ride", ride);
-                rideBundle.putBoolean("isUseGps", isUseGps);
+//                rideBundle.putBoolean("isUseGps", isUseGps);
                 Intent intent = new Intent(getApplicationContext(), MyService.class);
                 intent.setAction(MyService.START_SERVICE);
                 intent.putExtras(rideBundle);
@@ -984,7 +984,7 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
         if (checkPermissions()) {
             checkingAndUpdateRunningTripRecords();
         } else if (!checkPermissions()) {
-            requestPermissions();
+//            requestPermissions();
         }
         //updateUI();
     }
@@ -1114,16 +1114,16 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
         }
     }
 
-    private void requestBackgroundLocationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                        REQUEST_PERMISSIONS_REQUEST_CODE);
-            }
-        }
-    }
+//    private void requestBackgroundLocationPermission() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//                ActivityCompat.requestPermissions(this,
+//                        new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+//                        REQUEST_PERMISSIONS_REQUEST_CODE);
+//            }
+//        }
+//    }
 
     /**
      * Callback received when a permissions request has been completed.
@@ -1312,10 +1312,10 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
         if(!RecordRideActivity.this.isFinishing()) {
             CustomDialog dialog = new CustomDialog(this, ridePurposeList);
             dialog.show(dialogInterface -> {
-                if (dialog.isCancelled()) {
-                    mStartUpdatesButton.setEnabled(true);
-                    return;
-                }
+//                if (dialog.isCancelled()) {
+//                    mStartUpdatesButton.setEnabled(true);
+//                    return;
+//                }
                 LocationApp.logs("TRIP", "showRidePurposeDialog button clicked");
                 if (isRidePurposeOkButtonClicked) {
                     LocationApp.logs("TRIP", "showRidePurposeDialog button already clicked");
@@ -1353,7 +1353,7 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
                         public void onResponse(Call<String> call, Response<String> response) {
                             if (response.code() == 201) {
                                 ride.setId(Long.parseLong(response.body()));
-                                startRide(ride, dialog.isUseGps());
+                                startRide(ride);
                             } else {
                                 String message = "Can not start ride at the moment. Please try after some time";
                                 if (response.code() == 401) {

@@ -23,7 +23,7 @@ public class CustomDialog {
     int selectedPosition = -1;
     Context context;
 
-    boolean useGps = true;
+//    boolean useGps = true;
     boolean isCancelled = false;
     ArrayList<RideReason> reasonArrayList;
     public CustomDialog(Context context, ArrayList<RideReason> reasonArrayList) {
@@ -49,14 +49,14 @@ public class CustomDialog {
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         Spinner sItems = dialog.findViewById(R.id.mySpinner);
-        RadioButton useGpsRadioBtn = dialog.findViewById(R.id.gpslocation);
-        RadioButton useFusedRadioBtn = dialog.findViewById(R.id.fusedlocation);
-        if (useGpsRadioBtn!= null) {
-            useGpsRadioBtn.setOnClickListener(v -> useGps = useGpsRadioBtn.isChecked());
-        }
-        if (useFusedRadioBtn!= null) {
-            useFusedRadioBtn.setOnClickListener(v -> useGps = !useFusedRadioBtn.isChecked());
-        }
+//        RadioButton useGpsRadioBtn = dialog.findViewById(R.id.gpslocation);
+//        RadioButton useFusedRadioBtn = dialog.findViewById(R.id.fusedlocation);
+//        if (useGpsRadioBtn!= null) {
+//            useGpsRadioBtn.setOnClickListener(v -> useGps = useGpsRadioBtn.isChecked());
+//        }
+//        if (useFusedRadioBtn!= null) {
+//            useFusedRadioBtn.setOnClickListener(v -> useGps = !useFusedRadioBtn.isChecked());
+//        }
 
         sItems.setAdapter(adapter);
 
@@ -98,12 +98,12 @@ public class CustomDialog {
         return selectedPosition;
     }
 
-    public boolean isUseGps() {
-        return useGps;
-    }
-
-    public boolean isCancelled() {
-        return useGps;
-    }
+//    public boolean isUseGps() {
+//        return useGps;
+//    }
+//
+//    public boolean isCancelled() {
+//        return useGps;
+//    }
 }
 

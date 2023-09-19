@@ -80,25 +80,7 @@
                         android:orientation="horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        >
-                        <RadioButton
-                            android:id="@+id/gpslocation"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:text="Use GPS"
-                            android:focusedByDefault="true"
-                            android:checked="true" />
-
-
-                        <RadioButton
-                            android:id="@+id/fusedlocation"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:text="Use Fuse" />
-
-                    </RadioGroup>
+                        />
                 </LinearLayout>
 
             </LinearLayout>
