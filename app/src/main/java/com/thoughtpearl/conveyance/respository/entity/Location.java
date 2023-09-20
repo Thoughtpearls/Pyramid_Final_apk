@@ -8,8 +8,6 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
-import java.util.UUID;
-
 @Entity(tableName = "location", foreignKeys = {
         @ForeignKey(entity = TripRecord.class, parentColumns = "id", childColumns = "tripId", onDelete = CASCADE)
 })

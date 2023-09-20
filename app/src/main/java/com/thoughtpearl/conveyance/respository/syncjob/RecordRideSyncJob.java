@@ -3,7 +3,6 @@ package com.thoughtpearl.conveyance.respository.syncjob;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.thoughtpearl.conveyance.LocationApp;

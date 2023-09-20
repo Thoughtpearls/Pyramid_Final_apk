@@ -15,6 +15,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission_group.NOTIFICATIONS" />
+    <uses-permission android:name="android.permission_group.MICROPHONE" />
 
     <uses-feature
         android:name="android.hardware.camera.any"
@@ -39,7 +42,7 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_foreground"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyMapApplication"
+        android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="31">
@@ -47,7 +50,7 @@
             android:name=".ui.rides.ridedetails.RideDetailsActivity"
             android:label="Ride Details"
             android:exported="false"
-            android:theme="@style/Theme.MyMapApplication.NoActionBar">
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -90,7 +93,7 @@
             android:label="@string/title_activity_bottom_navigation"
             android:screenOrientation="portrait"
             android:taskAffinity=".BottomNavigationActivity"
-            android:theme="@style/Theme.MyMapApplication.NoActionBar">
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -116,14 +119,14 @@
             android:label="@string/title_activity_maps"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.MyMapApplication.NoActionBar" />
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
         <activity
             android:name=".ui.login.LoginActivity"
             android:exported="false"
             android:label="@string/title_activity_maps"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.MyMapApplication.NoActionBar" />
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
         <activity
             android:name=".ui.splashscreen.SplashScreenActivity"
             android:exported="true"

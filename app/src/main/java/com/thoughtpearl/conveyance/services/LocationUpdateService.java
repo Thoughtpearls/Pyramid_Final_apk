@@ -12,7 +12,6 @@ import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -25,15 +24,13 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
-
 import com.thoughtpearl.conveyance.LocationApp;
-import com.thoughtpearl.conveyance.ui.recordride.RecordRideActivity;
 import com.thoughtpearl.conveyance.R;
 import com.thoughtpearl.conveyance.respository.database.TripDatabase;
 import com.thoughtpearl.conveyance.respository.entity.TripRecord;
+import com.thoughtpearl.conveyance.ui.recordride.RecordRideActivity;
 
 import java.util.Random;
-import java.util.UUID;
 
 /**
  * Starts location updates on background and publish LocationUpdateEvent upon

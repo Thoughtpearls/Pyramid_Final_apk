@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
-import android.util.Log;
 
 import com.thoughtpearl.conveyance.LocationApp;
 import com.thoughtpearl.conveyance.api.ApiHandler;

@@ -2,12 +2,10 @@ package com.thoughtpearl.conveyance.ui.navigation;
 
 import static com.thoughtpearl.conveyance.LocationApp.employeeProfileLiveData;
 import static com.thoughtpearl.conveyance.LocationApp.getUserName;
-
 import static java.io.File.createTempFile;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -33,13 +31,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -55,6 +46,8 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.bumptech.glide.Glide;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.navigation.NavigationView;
@@ -72,10 +65,6 @@ import com.thoughtpearl.conveyance.services.MyService;
 import com.thoughtpearl.conveyance.ui.login.LoginActivity;
 import com.thoughtpearl.conveyance.ui.recordride.RecordRideActivity;
 import com.thoughtpearl.conveyance.utility.TrackerUtility;
-
-/*import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;*/
 
 import java.io.File;
 import java.io.FileInputStream;

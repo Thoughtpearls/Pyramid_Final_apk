@@ -3,8 +3,6 @@ package com.thoughtpearl.conveyance.api.response;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.Serializable;
-
 public class Ride implements Parcelable {
         private Long id;
         private String rideDate;

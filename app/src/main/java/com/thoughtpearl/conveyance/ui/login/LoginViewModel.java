@@ -1,6 +1,5 @@
 package com.thoughtpearl.conveyance.ui.login;
 
-import android.content.SharedPreferences;
 import android.util.Patterns;
 
 import androidx.lifecycle.LiveData;
@@ -9,17 +8,9 @@ import androidx.lifecycle.ViewModel;
 
 import com.thoughtpearl.conveyance.R;
 import com.thoughtpearl.conveyance.api.ApiHandler;
-import com.thoughtpearl.conveyance.api.response.LoginRequest;
 import com.thoughtpearl.conveyance.api.response.LoginResponse;
 import com.thoughtpearl.conveyance.data.LoginRepository;
-import com.thoughtpearl.conveyance.data.Result;
 import com.thoughtpearl.conveyance.data.model.LoggedInUser;
-import com.thoughtpearl.conveyance.utility.TrackerUtility;
-
-/*import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;*/
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;

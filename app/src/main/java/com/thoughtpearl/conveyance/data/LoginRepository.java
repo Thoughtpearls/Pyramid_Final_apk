@@ -1,11 +1,7 @@
 package com.thoughtpearl.conveyance.data;
 
-import com.thoughtpearl.conveyance.api.ApiHandler;
 import com.thoughtpearl.conveyance.data.model.LoggedInUser;
 
-/*import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;*/
 
 /**
  * Class that requests authentication and user information from the remote data source and

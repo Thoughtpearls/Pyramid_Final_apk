@@ -43,7 +43,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -57,8 +56,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.roomorama.caldroid.CaldroidFragment;
-import com.thoughtpearl.conveyance.databinding.FragmentAttendanceBinding;
-import com.thoughtpearl.conveyance.ui.recordride.RecordRideActivity;
 import com.thoughtpearl.conveyance.LocationApp;
 import com.thoughtpearl.conveyance.R;
 import com.thoughtpearl.conveyance.api.ApiHandler;
@@ -68,8 +65,10 @@ import com.thoughtpearl.conveyance.api.SearchRideResponse;
 import com.thoughtpearl.conveyance.api.response.Attendance;
 import com.thoughtpearl.conveyance.api.response.EmployeeProfile;
 import com.thoughtpearl.conveyance.api.response.Ride;
+import com.thoughtpearl.conveyance.databinding.FragmentAttendanceBinding;
 import com.thoughtpearl.conveyance.respository.executers.AppExecutors;
 import com.thoughtpearl.conveyance.services.MyService;
+import com.thoughtpearl.conveyance.ui.recordride.RecordRideActivity;
 import com.thoughtpearl.conveyance.utility.TrackerUtility;
 
 import org.json.JSONException;
@@ -88,7 +87,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -112,8 +110,6 @@ public class AttendanceFragment extends Fragment {
     private String customEndDate;
     Activity mActivity;
 
-    boolean retryCheckIn = false;
-    boolean retryCheckOut = false;
     ActivityResultLauncher<Uri> mCheckInResultLauncher;
     ActivityResultLauncher<Uri> mCheckOutResultLauncher;
     @Override
@@ -170,17 +166,14 @@ public class AttendanceFragment extends Fragment {
             }
         });
          binding.swipeRefreshLayout.setNestedScrollingEnabled(true);
-         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-             @Override
-             public void onRefresh() {
-                LocationApp.logs("TRIP", "OnRefresh called from SwipeRefreshLayout");
-                 if (!TrackerUtility.checkConnection(mActivity)) {
-                     Toast.makeText(mActivity, "Please check your network connection", Toast.LENGTH_LONG).show();
-                     setSwipeLayoutIsRefreshing(false);
-                 } else {
-                     calculateLeave(false);
+         binding.swipeRefreshLayout.setOnRefreshListener(() -> {
+            LocationApp.logs("TRIP", "OnRefresh called from SwipeRefreshLayout");
+             if (!TrackerUtility.checkConnection(mActivity)) {
+                 Toast.makeText(mActivity, "Please check your network connection", Toast.LENGTH_LONG).show();
+                 setSwipeLayoutIsRefreshing(false);
+             } else {
+                 calculateLeave(false);
 
-                 }
              }
          });
 
@@ -226,9 +219,8 @@ public class AttendanceFragment extends Fragment {
             }
 
             if (checkPermissions()) {
-                //checkInImageFile = createImageFile();
                 // Continue only if the File was successfully created
-                Uri photoURI = null;
+                Uri photoURI;
                 if (checkInImageFile == null) {
                     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                     String imageFileName = "JPEG_" + timeStamp + "_" + System.currentTimeMillis() + ".jpeg";
@@ -242,7 +234,6 @@ public class AttendanceFragment extends Fragment {
                             checkInImageFile.setExecutable(true, false);
                          } catch (IOException ioException){
                            LocationApp.logs("TRIP", "checkInImage : faild to create file :" + ioException);
-                            //checkInImageFile = new File(String.valueOf(mActivity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new ContentValues())));
                          }
                     }
                     photoURI = FileProvider.getUriForFile(
@@ -266,26 +257,8 @@ public class AttendanceFragment extends Fragment {
                         File file = new File(directory, imageFileName);
                         photoURI = FileProvider.getUriForFile(requireActivity(), getActivity().getPackageName() + ".fileprovider", file);
                     }
-                    //startActivityForResult(cameraIntent, ATTENDANCE_CHECKIN_CAMERA_REQUEST);
-                    //startActivity(cameraIntent);
-
                     mCheckInResultLauncher.launch(photoURI);
 
-                    /*ActivityResultLauncher<Intent> startActivityIntent = registerForActivityResult(
-                            new ActivityResultContracts.StartActivityForResult(),
-                            new ActivityResultCallback<ActivityResult>() {
-                                @Override
-                                public void onActivityResult(ActivityResult result) {
-                                    if(result.getResultCode() == RESULT_OK) // 0 on real device , -1 on Emulator
-                                    {
-                                        if(result.getData() != null) {
-
-                                        }
-                                    }
-
-                                }
-                            });
-                    startActivityIntent.launch(in);*/
                 } catch (Exception e) {
                     Toast.makeText(mActivity, "Error in creating file : " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
@@ -293,7 +266,6 @@ public class AttendanceFragment extends Fragment {
                 requestPermissions();
             }
 
-            //ApiHandler.getClient().markAttendance(LocationApp.USER_NAME, LocationApp.DEVICE_ID,);
         });
 
         binding.checkOutBtn.setOnClickListener(view -> {
@@ -332,36 +304,7 @@ public class AttendanceFragment extends Fragment {
                 if (checkPermissions()) {
                     if (isRideDisabled.get()) {
                         attendanceCheckOut();
-                        /*
-                        checkOutImageFile = createImageFile();
-                        // Continue only if the File was successfully created
-                        Uri photoURI = null;
-                        if (checkOutImageFile == null) {
-                            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                            String imageFileName = "JPEG_" + timeStamp + "_" + System.currentTimeMillis() + ".jpeg";
-                            checkOutImageFile = new File(this.mActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES), imageFileName);
-                            ;
-                        }
 
-                        try {
-                            if (checkOutImageFile != null && !checkOutImageFile.exists()) {
-                                checkOutImageFile.createNewFile();
-                            }
-                            photoURI = FileProvider.getUriForFile(
-                                    mActivity,
-                                    "com.thoughtpearl.conveyance.fileprovider",
-                                    checkOutImageFile
-                            );
-
-                            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                            cameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                            cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            startActivityForResult(cameraIntent, ATTENDANCE_CHECKOUT_CAMERA_REQUEST);
-                        }
-                        catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }*/
                     } else {
                         fetchTodaysRides();
                     }
@@ -374,8 +317,6 @@ public class AttendanceFragment extends Fragment {
             showLeavesAlertDialog();
         });
 
-        //CalendarView calendarView = binding.attendanceCalendarView;
-
         // If Activity is created after rotation
         if (savedInstanceState != null && caldroidFragment != null) {
             caldroidFragment.restoreStatesFromKey(savedInstanceState,
@@ -387,17 +328,10 @@ public class AttendanceFragment extends Fragment {
                 Calendar cal = Calendar.getInstance();
                 args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
                 args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
-                //args.putBoolean(CaldroidFragment.SQUARE_TEXT_VIEW_CELL, false);
-                //args.putInt(CaldroidFragment.THEME_RESOURCE, com.caldroid.R.style.CaldroidDefaultDark);
                 caldroidFragment.setArguments(args);
                 FragmentTransaction t = getActivity().getSupportFragmentManager().beginTransaction();
                 t.replace(R.id.calender_container, caldroidFragment);
                 t.commit();
-            /*} else {
-                FragmentTransaction t = mActivity.getSupportFragmentManager().beginTransaction();
-                t.replace(R.id.calender_container, caldroidFragment);
-                t.commit();
-            }*/
         }
 
         LocationApp.leavesDetailsMutableLiveData.observe(getViewLifecycleOwner(), getLeavesDetailsObserver());
@@ -469,17 +403,13 @@ public class AttendanceFragment extends Fragment {
                 });
             }
 
-            //setupWorkingDaysBackground(month, leavingsTaken, leavingsTakenHashMap, workingBackgroundColor, leaveTakenTextColor);
-
             if (leavingsTaken.size() > 0 || leavingsTakenHashMap.size() > 0) {
                 if (caldroidFragment != null) {
                     caldroidFragment.setTextColorForDates(leavingsTaken);
                     caldroidFragment.setBackgroundDrawableForDates(leavingsTakenHashMap);
-                    //caldroidFragment.setSixWeeksInCalendar(true);
+
                     caldroidFragment.refreshView();
                 }
-            } else {
-                //setupDummyHolidayRecords();
             }
 
         };
@@ -502,7 +432,6 @@ public class AttendanceFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             for (LocalDate date = firstDateOfTheMonth; !date
                     .isAfter(firstDateOfTheMonth.with(TemporalAdjusters.lastDayOfMonth())); date = date.plusDays(1))
-                //(!leavingsTakenHashMap.containsKey(TrackerUtility.asDate(date)) && date.isAfter(LocalDate.now())) || (isClockedIn && checkInDate.get().equals(date.toString()))
                 if (!leavingsTakenHashMap.containsKey(TrackerUtility.asDate(date)) && !date.isAfter(LocalDate.now())) {
                      boolean isUpdate = true;
                     if ((checkInDate.get().equals(date.toString()))) {
@@ -655,7 +584,7 @@ public class AttendanceFragment extends Fragment {
                             if (attendance.getType().equalsIgnoreCase(LocationApp.CLOCK_IN)) {
                                 new Handler().postDelayed(() -> calculateLeave(true), 2000);
                                 editor.putString(LocationApp.CLOCK_IN, attendance.getDate());
-                                editor.commit();
+                                editor.apply();
                                 new Handler().postDelayed(() -> {
                                     if (binding!= null && binding.checkInBtn != null) {
                                         binding.checkInBtn.setBackgroundColor(Color.GRAY);
@@ -698,56 +627,6 @@ public class AttendanceFragment extends Fragment {
                 }
             });
 
-           /* markAttendanceCall.enqueue(new Callback<String>() {
-                @Override
-                public void onResponse(Call<String> call, Response<String> response) {
-                    LocationApp.logs("username :" + username +" attendance : " + deviceId + "response :" + response.code());
-                    if (response.code() == 201 || response.code() == 200) {
-                        if (attendance.getType() == LocationApp.ON_LEAVE) {
-                            if (alertDialog != null) {
-                                alertDialog.dismiss();
-                                //new Handler().postDelayed(() -> calculateLeave(true), 5000);
-                            }
-                            Toast.makeText(mActivity, "Leave Applied Successfully.", Toast.LENGTH_SHORT).show();
-                        } else {
-                            LocationApp.logs("TRIP", "marked attendance type:" + attendance.getType() + " date:" + attendance.getDate() + " Time : " + attendance.getTime());
-                            Toast.makeText(mActivity, "Attendance marked successfully", Toast.LENGTH_SHORT).show();
-                            SharedPreferences sharedPreferences = mActivity.getSharedPreferences(LocationApp.APP_NAME, Context.MODE_PRIVATE);
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            if (attendance.getType().equalsIgnoreCase(LocationApp.CLOCK_IN)) {
-                                new Handler().postDelayed(() -> calculateLeave(true), 2000);
-                                editor.putString(LocationApp.CLOCK_IN, attendance.getDate());
-                                editor.commit();
-                                new Handler().postDelayed(() -> binding.checkInBtn.setBackgroundColor(Color.GRAY), 1000);
-                                isClockedIn = true;
-                            } else if (attendance.getType().equalsIgnoreCase(LocationApp.CLOCK_OUT)) {
-                                editor.putString(LocationApp.CLOCK_OUT, attendance.getDate());
-                                editor.commit();
-                                new Handler().postDelayed(() -> binding.checkInBtn.setBackgroundColor(Color.GRAY),1000);
-                                isClockedOut = true;
-                            }
-                        }
-                    } else {
-                        LocationApp.logs("username :" + username +" attendance : " + deviceId + "response : Else block attendance.getType()" + attendance.getType());
-                        LocationApp.logs("markAttendance", "username :" + username +" attendance : " + deviceId + "response : Else block");
-                        LocationApp.logs("TRIP", "Error :" + response.errorBody());
-                        String message = "Attendance not marked";
-                        if (attendance.getType() == LocationApp.ON_LEAVE) {
-                            message = "Leave not applied. Please try after sometime.";
-                        }
-                        Toast.makeText(mActivity, message, Toast.LENGTH_SHORT).show();
-                    }
-                    dailog.dismiss();
-                }
-
-                @Override
-                public void onFailure(Call<String> call, Throwable t) {
-                    LocationApp.logs("markAttendance",  "onFailure username :" + username +" attendance : " + deviceId + " attendance.getType() " + attendance.getType());
-                    LocationApp.logs("username :" + username +" attendance : " + deviceId + "response : Error block");
-                    Toast.makeText(mActivity, "Attendance not marked", Toast.LENGTH_SHORT).show();
-                    dailog.dismiss();
-                }
-            }); */
         }
     }
 
@@ -803,17 +682,6 @@ public class AttendanceFragment extends Fragment {
             LocationApp.logs("Attendance : onActivityResult Path :" + getImageFilePath(fileUri));
         }
 
-        /*if (checkInImageFile == null && fileUri == null && requestCode == AttendanceFragment.ATTENDANCE_CHECKIN_CAMERA_REQUEST && !retryCheckIn) {
-            retryCheckIn = true;
-            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(cameraIntent, ATTENDANCE_CHECKIN_CAMERA_REQUEST);
-
-        } else  if (checkInImageFile == null && fileUri == null && requestCode == AttendanceFragment.ATTENDANCE_CHECKOUT_CAMERA_REQUEST && !retryCheckOut) {
-            retryCheckOut = true;
-            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(cameraIntent, ATTENDANCE_CHECKOUT_CAMERA_REQUEST);
-
-        } else*/
         if (requestCode == AttendanceFragment.ATTENDANCE_CHECKIN_CAMERA_REQUEST && resultCode == RESULT_OK) {
             checkInAttendance(fileUri);
         } else if (requestCode == AttendanceFragment.ATTENDANCE_CHECKOUT_CAMERA_REQUEST && resultCode == RESULT_OK) {
@@ -1001,45 +869,11 @@ public class AttendanceFragment extends Fragment {
      * Return the current state of the permissions needed.
      */
     private boolean checkPermissions() {
-        /*int permissionState = ActivityCompat.checkSelfPermission(getContext(),
-                Manifest.permission.CAMERA);
-        int permissionStateWriteFile = ActivityCompat.checkSelfPermission(getContext(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        int permissionStateReadImageFile = ActivityCompat.checkSelfPermission(getContext(),
-                Manifest.permission.READ_MEDIA_IMAGES);
-        int permissionStateReadExternalStorageFile = ActivityCompat.checkSelfPermission(getContext(),
-                Manifest.permission.READ_EXTERNAL_STORAGE);
-        int permissionStateFineLocation = ActivityCompat.checkSelfPermission(getContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION);
-        int permissionStateCourseLocation = ActivityCompat.checkSelfPermission(getContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            return ((permissionState == PackageManager.PERMISSION_GRANTED) &&
-                    (permissionStateReadImageFile == PackageManager.PERMISSION_GRANTED) &&
-                    (permissionStateReadExternalStorageFile == PackageManager.PERMISSION_GRANTED) &&
-                    (permissionStateFineLocation == PackageManager.PERMISSION_GRANTED) &&
-                    (permissionStateCourseLocation == PackageManager.PERMISSION_GRANTED));
-
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            return ((permissionState == PackageManager.PERMISSION_GRANTED) &&
-                    (permissionStateWriteFile == PackageManager.PERMISSION_GRANTED) &&
-                    (permissionStateReadExternalStorageFile == PackageManager.PERMISSION_GRANTED) &&
-                    (permissionStateFineLocation == PackageManager.PERMISSION_GRANTED) &&
-                    (permissionStateCourseLocation == PackageManager.PERMISSION_GRANTED));
-        } else {
-            return ((permissionState == PackageManager.PERMISSION_GRANTED) &&
-                    (permissionStateFineLocation == PackageManager.PERMISSION_GRANTED) &&
-                    (permissionStateReadExternalStorageFile == PackageManager.PERMISSION_GRANTED) &&
-                    (permissionStateCourseLocation == PackageManager.PERMISSION_GRANTED));
-        }*/
 
         int permissionState = ActivityCompat.checkSelfPermission(getContext(),
                 Manifest.permission.CAMERA);
         int permissionStateWriteFile = ActivityCompat.checkSelfPermission(getContext(),
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        /*int permissionStateWriteExternalStorageFile = ActivityCompat.checkSelfPermission(getContext(),
-                Manifest.permission.MANAGE_EXTERNAL_STORAGE);*/
         int permissionStateFineLocation = ActivityCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION);
         int permissionStateCourseLocation = ActivityCompat.checkSelfPermission(getContext(),
@@ -1085,62 +919,6 @@ public class AttendanceFragment extends Fragment {
     }
 
     private void requestPermissions() {
-        /*boolean shouldProvideRationale = false;
-
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            shouldProvideRationale =
-                    ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.CAMERA) && ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.READ_MEDIA_IMAGES)  && ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.READ_EXTERNAL_STORAGE) && ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.ACCESS_FINE_LOCATION) && ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.ACCESS_COARSE_LOCATION);
-        } else if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-            shouldProvideRationale =
-                    ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.CAMERA) && ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE)  && ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.READ_EXTERNAL_STORAGE) && ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.ACCESS_FINE_LOCATION) && ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.ACCESS_COARSE_LOCATION);
-        } else {
-            shouldProvideRationale =
-                    ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.CAMERA) && ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE) && ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.ACCESS_FINE_LOCATION) && ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.ACCESS_COARSE_LOCATION)  && ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
-                            Manifest.permission.READ_EXTERNAL_STORAGE);
-        }
-
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
-        if (shouldProvideRationale) {
-            Log.i("TRIP", "Displaying permission rationale to provide additional context.");
-
-            ActivityCompat.requestPermissions(mActivity,
-                    new String[]{Manifest.permission.CAMERA,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_MEDIA_IMAGES},
-                    REQUEST_CODE);
-        } else {
-            Log.i("TRIP", "Requesting permission");
-            // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
-            // previously and checked "Never ask again".
-            String[] permissions;
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                permissions = new String[]{Manifest.permission.CAMERA,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.READ_EXTERNAL_STORAGE,  Manifest.permission.READ_MEDIA_IMAGES};
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                permissions = new String[]{Manifest.permission.CAMERA,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.READ_EXTERNAL_STORAGE};
-            }else {
-                permissions = new String[]{Manifest.permission.CAMERA,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE};
-            }
-
-            ActivityCompat.requestPermissions(mActivity,
-                    permissions,
-                    REQUEST_CODE);
-
-        }*/
 
         boolean shouldProvideRationale = false;
         if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
@@ -1166,13 +944,7 @@ public class AttendanceFragment extends Fragment {
             ActivityCompat.requestPermissions(mActivity,
                     new String[]{Manifest.permission.CAMERA,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_CODE);
-            /*showSnackbar(R.string.permission_rationale,
-                    android.R.string.ok, view -> {
-                        // Request permission
-                        ActivityCompat.requestPermissions(mActivity,
-                                new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                REQUEST_CODE);
-                    });*/
+
         } else {
             Log.i("TRIP", "Requesting permission");
             // Request permission. It's possible this can be auto answered if device policy
@@ -1412,13 +1184,13 @@ public class AttendanceFragment extends Fragment {
                 Date myDate = convertStringToDate(customStartDate);
                 if (LocationApp.leavesDetailsMutableLiveData != null &&
                         LocationApp.leavesDetailsMutableLiveData.getValue() != null) {
-                   int count = LocationApp.leavesDetailsMutableLiveData.getValue().getHolidays().stream().filter(attendanceDetails -> attendanceDetails.getDate().equalsIgnoreCase(customStartDate)).collect(Collectors.toList()).size();
+                   int count = (int) LocationApp.leavesDetailsMutableLiveData.getValue().getHolidays().stream().filter(attendanceDetails -> attendanceDetails.getDate().equalsIgnoreCase(customStartDate)).count();
                     if (count > 0) {
                         Toast.makeText(mActivity, "Can not apply leaves on public holidays", Toast.LENGTH_LONG).show();
                         return;
                     }
 
-                    int alreadyLeaveCount = LocationApp.leavesDetailsMutableLiveData.getValue().getAttendancesByYear().stream().filter(attendanceDetails -> attendanceDetails.getDate().equalsIgnoreCase(customStartDate)).collect(Collectors.toList()).size();
+                    int alreadyLeaveCount = (int) LocationApp.leavesDetailsMutableLiveData.getValue().getAttendancesByYear().stream().filter(attendanceDetails -> attendanceDetails.getDate().equalsIgnoreCase(customStartDate)).count();
                     if (alreadyLeaveCount > 0) {
                         Toast.makeText(mActivity, "You have already applied for leave.", Toast.LENGTH_LONG).show();
                         return;
@@ -1465,9 +1237,7 @@ public class AttendanceFragment extends Fragment {
             }
         });
 
-        alertDialog.findViewById(R.id.cancelAlertButton).setOnClickListener(view-> {
-            alertDialog.dismiss();
-        });
+        alertDialog.findViewById(R.id.cancelAlertButton).setOnClickListener(view-> alertDialog.dismiss());
 
         DatePickerDialog.OnDateSetListener fromDateListener = (datePicker, i, i1, i2) -> {
             Calendar mCalendar = Calendar.getInstance();
@@ -1514,10 +1284,6 @@ public class AttendanceFragment extends Fragment {
             showCalender(fromDateListener);
         });
 
-        /*alertDialog.findViewById(R.id.toDateTextView).setOnClickListener(view -> {
-            //Toast.makeText(mActivity, "To date clicked", Toast.LENGTH_SHORT).show();
-            showCalender(toDateListener);
-        });*/
     }
 
     private void showCalender(DatePickerDialog.OnDateSetListener dateListener) {
@@ -1542,7 +1308,7 @@ public class AttendanceFragment extends Fragment {
                     if (response.code() == 200) {
                         List<Ride> tripRecordList = response.body().getRideDTOList();
                         if (tripRecordList != null) {
-                            int incompleteRidesCount = tripRecordList.stream().filter(ride -> ride.getRideEndTime() ==null).collect(Collectors.toList()).size();
+                            int incompleteRidesCount = (int) tripRecordList.stream().filter(ride -> ride.getRideEndTime() == null).count();
                             if (incompleteRidesCount > 0) {
 
                                 MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(mActivity);
@@ -1689,7 +1455,7 @@ public class AttendanceFragment extends Fragment {
                                 }
                             }
                         }
-                        editor.commit();
+                        editor.apply();
                     });
 
                 }
@@ -1700,35 +1466,4 @@ public class AttendanceFragment extends Fragment {
             }
         });
     }
-
-    /*private void capturePhoto() {
-        long timestamp = System.currentTimeMillis();
-
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, timestamp);
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
-        imageCapture.takePicture(
-                new ImageCapture.OutputFileOptions.Builder(
-                        mActivity.getContentResolver(),
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        contentValues
-                ).build(),
-                getExecutor(),
-                new ImageCapture.OnImageSavedCallback() {
-                    @Override
-                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                        Toast.makeText(mActivity, "Photo has been saved successfully.", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onError(@NonNull ImageCaptureException exception) {
-                        Toast.makeText(mActivity, "Error saving photo: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
-
-    }
-    Executor getExecutor() {
-        return ContextCompat.getMainExecutor(mActivity);
-    }*/
 }

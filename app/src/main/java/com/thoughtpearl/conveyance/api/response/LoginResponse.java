@@ -1,8 +1,5 @@
 package com.thoughtpearl.conveyance.api.response;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class LoginResponse {
     private boolean rideDisabled;
 

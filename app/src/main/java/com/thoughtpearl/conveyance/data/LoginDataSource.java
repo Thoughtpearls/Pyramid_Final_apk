@@ -1,17 +1,13 @@
 package com.thoughtpearl.conveyance.data;
 
 import android.os.Build;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
 import com.thoughtpearl.conveyance.LocationApp;
 import com.thoughtpearl.conveyance.api.ApiHandler;
-import com.thoughtpearl.conveyance.api.response.LoginRequest;
 import com.thoughtpearl.conveyance.api.response.LoginResponse;
 import com.thoughtpearl.conveyance.data.model.LoggedInUser;
-import com.thoughtpearl.conveyance.ui.login.LoginActivity;
-import com.thoughtpearl.conveyance.utility.TrackerUtility;
 
 import java.io.IOException;
 

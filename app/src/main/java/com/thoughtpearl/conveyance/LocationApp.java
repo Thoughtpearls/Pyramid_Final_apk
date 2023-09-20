@@ -1,6 +1,5 @@
 package com.thoughtpearl.conveyance;
 
-import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
 import android.app.NotificationChannel;
@@ -9,37 +8,22 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
-import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
-import com.android.volley.VolleyError;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.hypertrack.hyperlog.HLCallback;
 import com.hypertrack.hyperlog.HyperLog;
-import com.hypertrack.hyperlog.error.HLErrorResponse;
 import com.thoughtpearl.conveyance.api.LeavesDetails;
 import com.thoughtpearl.conveyance.api.response.EmployeeProfile;
 import com.thoughtpearl.conveyance.crashlytics.CrashlysticsCustomKey;
-import com.thoughtpearl.conveyance.crashlytics.MyExceptionHandler;
 import com.thoughtpearl.conveyance.ui.customcomponent.MyProgressDialog;
-import com.thoughtpearl.conveyance.ui.navigation.BottomNavigationActivity;
 import com.thoughtpearl.conveyance.utility.TrackerUtility;
-
-import java.io.IOException;
-
-import fr.bipi.tressence.file.FileLoggerTree;
-import fr.bipi.tressence.sentry.SentryBreadcrumbTree;
-import timber.log.Timber;
 
 public class LocationApp extends Application implements LifecycleEventObserver {
 

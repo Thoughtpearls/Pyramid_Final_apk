@@ -1,24 +1,18 @@
 package com.thoughtpearl.conveyance.ui.rides;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.thoughtpearl.conveyance.R;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.thoughtpearl.conveyance.api.response.Ride;
 import com.thoughtpearl.conveyance.databinding.FragmentRideDetailsBinding;
-import com.thoughtpearl.conveyance.respository.entity.TripRecord;
-import com.thoughtpearl.conveyance.respository.entity.TripRecordLocationRelation;
 import com.thoughtpearl.conveyance.ui.rides.placeholder.PlaceholderContent.PlaceholderItem;
 import com.thoughtpearl.conveyance.utility.TrackerUtility;
-
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

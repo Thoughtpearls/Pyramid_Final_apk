@@ -1,30 +1,5 @@
 package com.thoughtpearl.conveyance.worker;
 
-import android.content.Context;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-/*import androidx.work.Worker;
-import androidx.work.WorkerParameters;*/
-
-import com.thoughtpearl.conveyance.LocationApp;
-import com.thoughtpearl.conveyance.api.ApiHandler;
-import com.thoughtpearl.conveyance.respository.databaseclient.DatabaseClient;
-import com.thoughtpearl.conveyance.respository.entity.TripRecord;
-import com.thoughtpearl.conveyance.respository.executers.AppExecutors;
-import com.thoughtpearl.conveyance.utility.TrackerUtility;
-
-import java.io.File;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class RideUpdateWorker /*extends Worker */{
     /*TripRecord tripRecord;
     String imagePath;

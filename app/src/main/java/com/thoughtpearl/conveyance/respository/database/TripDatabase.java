@@ -1,9 +1,9 @@
 package com.thoughtpearl.conveyance.respository.database;
+
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-import com.thoughtpearl.conveyance.respository.converter.DateConverter;
 import com.thoughtpearl.conveyance.respository.converter.UUIDConverter;
 import com.thoughtpearl.conveyance.respository.dao.TripRecordDao;
 import com.thoughtpearl.conveyance.respository.entity.Location;

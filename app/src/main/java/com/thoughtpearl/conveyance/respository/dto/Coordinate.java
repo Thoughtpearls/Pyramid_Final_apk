@@ -5,15 +5,6 @@ public class Coordinate {
     public Double lat;
     public Double log;
 
-    public Coordinate(){
-
-    }
-
-    public Coordinate(int trip_id, Double lat, Double log) {
-        this.trip_id = trip_id;
-        this.lat = lat;
-        this.log = log;
-    }
 
     public int getTrip_id() {
         return trip_id;
