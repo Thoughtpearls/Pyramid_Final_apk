@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Record Ride</string>
+    <string name="app_name"> Test Pyramid</string>
     <string name="title_activity_maps">Record Ride</string>
     <string name="latitude_label">Latitude</string>
     <string name="longitude_label">Longitude</string>

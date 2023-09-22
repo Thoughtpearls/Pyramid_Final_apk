@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<paths xmlns:android="http://schemas.android.com/apk/res/android">
-        <external-path name="my_images" path="Android/data/com.thoughtpearl.conveyance/files/Pictures" />
+<paths>
+        <external-path name="my_images" path="Android/data/com.pyramid.conveyance/files/Pictures" />
         <files-path
             name="images"
             path="camera_images/"/>
@@ -12,6 +12,6 @@
 </paths>-->
 
 <!--<paths xmlns:android="http://schemas.android.com/apk/res/android">
-        <external-path name="my_images" path="/data/data/com.thoughtpearl.conveyance/files/my_images/" />
+        <external-path name="my_images" path="/data/data/com.pyramid.conveyance/files/my_images/" />
 </paths>-->
 

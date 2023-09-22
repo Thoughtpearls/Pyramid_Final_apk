@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "239681363997",
-    "project_id": "conveyance-47d7b",
-    "storage_bucket": "conveyance-47d7b.appspot.com"
+    "project_number": "355537980522",
+    "project_id": "pyramid-track",
+    "storage_bucket": "pyramid-track.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:239681363997:android:f527a848b36c14ab1166f4",
+        "mobilesdk_app_id": "1:355537980522:android:22c1c673dfd9d1c2a2ce13",
         "android_client_info": {
-          "package_name": "com.thoughtpearl.conveyance"
+          "package_name": "com.pyramid.conveyance"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "239681363997-778hbe2p1iea0mojal47kn11ujl6impm.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCKq4XtyaLLU03HxD2crRcIrsE7PrAoWX8"
+          "current_key": "AIzaSyC7dR6U2aYwjVCpgJXX8rTi7PU-71TrnMM"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "239681363997-778hbe2p1iea0mojal47kn11ujl6impm.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

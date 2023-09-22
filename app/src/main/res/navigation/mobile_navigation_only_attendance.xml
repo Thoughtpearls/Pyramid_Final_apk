@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.thoughtpearl.conveyance.ui.home.HomeFragment"
+        android:name="com.pyramid.conveyance.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_attendance"
-        android:name="com.thoughtpearl.conveyance.ui.attendance.AttendanceFragment"
+        android:name="com.pyramid.conveyance.ui.attendance.AttendanceFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_attendance" />
 
