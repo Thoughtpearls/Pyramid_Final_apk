@@ -79,7 +79,7 @@ public class StatisticsFragment extends Fragment implements AdapterView.OnItemSe
         super.onAttach(context);
         mActivity = (Activity) context;
     }
-
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         StatisticsViewModel statisticsViewModel =
@@ -231,9 +231,9 @@ public class StatisticsFragment extends Fragment implements AdapterView.OnItemSe
                         rides = new ArrayList<>();
                         rides.add("Select Ride");
                         AtomicInteger index = new AtomicInteger(1);
-                        searchRideResponse.getRideDTOList().forEach(ride -> {
-                            rides.add((index.getAndIncrement()) + ".  " + ride.getRideDate() + " " + ride.getRideStartTime());
-                        });
+                        searchRideResponse.getRideDTOList().forEach(ride ->
+                            rides.add((index.getAndIncrement()) + ".  " + ride.getRideDate() + " " + ride.getRideStartTime())
+                        );
 
                         mActivity.runOnUiThread(() -> {
                             if (binding != null && binding.distanceTextView != null) {
@@ -276,12 +276,9 @@ public class StatisticsFragment extends Fragment implements AdapterView.OnItemSe
                     } else if (response.code() == 423) {
                         if (MyService.isTrackingOn != null && MyService.isTrackingOn.getValue()) {
 
-                            MyService.isTrackingOn.observe(getActivity(), new Observer<Boolean>() {
-                                @Override
-                                public void onChanged(Boolean aBoolean) {
-                                    if (!aBoolean) {
-                                        logout();
-                                    }
+                            MyService.isTrackingOn.observe(getActivity(), aBoolean -> {
+                                if (Boolean.FALSE.equals(aBoolean)) {
+                                    logout();
                                 }
                             });
 
@@ -360,22 +357,22 @@ public class StatisticsFragment extends Fragment implements AdapterView.OnItemSe
     }
 
     private void logout() {
-        new Handler().post(() -> {
-            SharedPreferences sharedPreferences = mActivity.getSharedPreferences(LocationApp.APP_NAME, MODE_PRIVATE);
-            sharedPreferences.edit().clear().commit();
-            AppExecutors.getInstance().getDiskIO().execute(()->{
-                DatabaseClient.getInstance(mActivity).getTripDatabase().clearAllTables();
-            });
-            Intent intent = new Intent(mActivity, LoginActivity.class);
-            startActivity(intent);
-            mActivity.finish();
-        });
+        SharedPreferences sharedPreferences = mActivity.getSharedPreferences(LocationApp.APP_NAME, MODE_PRIVATE);
+        sharedPreferences.edit().clear().apply();
+
+        DatabaseClient.getInstance(mActivity).getTripDatabase().clearAllTables();
+
+        Intent intent = new Intent(mActivity, LoginActivity.class);
+        startActivity(intent);
+        mActivity.finish();
     }
+
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        rideAdapter = null;
     }
 
     @Override
@@ -392,7 +389,7 @@ public class StatisticsFragment extends Fragment implements AdapterView.OnItemSe
                 searchRidesByDateRange(searchRideFilter);
                 break;
             case YESTERDAY:
-                today = c.getTime();
+//                today = c.getTime();
                 c = Calendar.getInstance();
                 c.setTime(new Date());
                 c.add(Calendar.DATE, -1);
@@ -476,9 +473,9 @@ public class StatisticsFragment extends Fragment implements AdapterView.OnItemSe
             alertDialog.dismiss();
         });
 
-        alertDialog.findViewById(R.id.cancelAlertButton).setOnClickListener(view-> {
-            alertDialog.dismiss();
-        });
+        alertDialog.findViewById(R.id.cancelAlertButton).setOnClickListener(view->
+            alertDialog.dismiss()
+        );
 
         DatePickerDialog.OnDateSetListener fromDateListener = (datePicker, i, i1, i2) -> {
             Calendar mCalendar = Calendar.getInstance();
@@ -508,15 +505,15 @@ public class StatisticsFragment extends Fragment implements AdapterView.OnItemSe
         ((TextView)alertDialog.findViewById(R.id.toDateTextView)).setText(sToDate);
         ((TextView)alertDialog.findViewById(R.id.fromDateTextView)).setText(sToDate);
 
-        alertDialog.findViewById(R.id.fromDateTextView).setOnClickListener(view -> {
+        alertDialog.findViewById(R.id.fromDateTextView).setOnClickListener(view ->
             //Toast.makeText(mActivity, "From date clicked", Toast.LENGTH_SHORT).show();
-            showCalender(fromDateListener);
-        });
+            showCalender(fromDateListener)
+        );
 
-        alertDialog.findViewById(R.id.toDateTextView).setOnClickListener(view -> {
+        alertDialog.findViewById(R.id.toDateTextView).setOnClickListener(view ->
             //Toast.makeText(mActivity, "To date clicked", Toast.LENGTH_SHORT).show();
-            showCalender(toDateListener);
-        });
+            showCalender(toDateListener)
+        );
     }
 
     private void showCalender(DatePickerDialog.OnDateSetListener dateListener) {

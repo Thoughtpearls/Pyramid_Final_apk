@@ -49,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         final EditText usernameEditText = binding.username;
         final EditText passwordEditText = binding.password;
         final Button loginButton = binding.login;
-        final ProgressBar loadingProgressBar = binding.progressCircular;
+//        final ProgressBar loadingProgressBar = binding.progressCircular;
 
         loginViewModel.getLoginFormState().observe(this, loginFormState -> {
             if (loginFormState == null) {
@@ -68,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
             if (loginResult == null) {
                 return;
             }
-            loadingProgressBar.setVisibility(View.GONE);
+//            loadingProgressBar.setVisibility(View.GONE);
             if (loginResult.getError() != null) {
                 showLoginFailed(loginResult.getError());
             }
@@ -128,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
             if (!TrackerUtility.checkConnection(getApplicationContext())) {
                 Toast.makeText(getApplicationContext(), "Please check your network connection", Toast.LENGTH_LONG).show();
             } else {
-                    loadingProgressBar.setVisibility(View.VISIBLE);
+//                    loadingProgressBar.setVisibility(View.VISIBLE);
                 loginViewModel.login(usernameEditText.getText().toString(),
                         passwordEditText.getText().toString(),
                         TrackerUtility.getDeviceId(getApplicationContext()));

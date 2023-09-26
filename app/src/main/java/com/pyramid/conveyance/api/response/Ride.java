@@ -18,8 +18,10 @@ public class Ride implements Parcelable {
         private boolean deleted;
         private Double reimbursementCost;
 
+        private String rideSnapshot;
+
         public Ride() {}
-        public Ride(Long id, String rideDate, String rideStartTime, String rideEndTime, Double rideCost, Double rideDistance, String reason, Double sanctionDistance, String employeeRide, boolean deleted, Double reimbursementCost) {
+        public Ride(Long id, String rideDate, String rideStartTime, String rideEndTime, Double rideCost, Double rideDistance, String reason, Double sanctionDistance, String employeeRide, boolean deleted, Double reimbursementCost, String rideSnapshot) {
                 this.id = id;
                 this.rideDate = rideDate;
                 this.rideStartTime = rideStartTime;
@@ -31,6 +33,7 @@ public class Ride implements Parcelable {
                 this.employeeRide = employeeRide;
                 this.deleted = deleted;
                 this.reimbursementCost = reimbursementCost;
+                this.rideSnapshot = rideSnapshot;
         }
 
         public Long getId() {
@@ -115,6 +118,14 @@ public class Ride implements Parcelable {
 
         public Double getReimbursementCost() {
                 return reimbursementCost;
+        }
+
+        public String getRideSnapshot() {
+                return rideSnapshot;
+        }
+
+        public void setRideSnapshot(String rideSnapshot) {
+                this.rideSnapshot = rideSnapshot;
         }
 
         public void setReimbursementCost(Double reimbursementCost) {

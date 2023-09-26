@@ -43,6 +43,7 @@ import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.pyramid.conveyance.respository.entity.TripRecordLocationRelation;
 import com.pyramid.conveyance.respository.executers.AppExecutors;
 import com.pyramid.conveyance.utility.TrackerUtility;
@@ -63,6 +64,7 @@ import java.io.File;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -128,14 +130,15 @@ public class MyService extends LifecycleService implements LocationListener {
     @Override
     public void onCreate() {
         super.onCreate();
-        this.context = this.getApplicationContext();
-        databaseClient = DatabaseClient.getInstance(getApplicationContext());
+        context = getApplicationContext();
+        databaseClient = DatabaseClient.getInstance(context);
         mCurrentLocation.setValue(null);
-        this.client = new FusedLocationProviderClient(context);
+        client = LocationServices.getFusedLocationProviderClient(context);
         setupInitialValues();
         setupLocationListener();
         setupTimerTask();
     }
+
 
     private void setupLocationManagerListener() {
 
@@ -176,12 +179,10 @@ public class MyService extends LifecycleService implements LocationListener {
 
     public void showToastMessage(String message) {
         if (!LocationApp.isAppInBackground()) {
-            new Handler(Looper.getMainLooper()).post(() -> {
-                Toast toast = Toast.makeText(MyService.this, message, Toast.LENGTH_LONG);
-                toast.show();
-            });
+            Toast.makeText(MyService.this, message, Toast.LENGTH_LONG).show();
         }
     }
+
 
     private void startTimer() {
         if (Looper.myLooper() == null) {
@@ -645,8 +646,8 @@ public class MyService extends LifecycleService implements LocationListener {
                     totalDistanceValue = totalDistance.getValue();
                 }
                 if (totalDistanceValue == 0) {
-                    TripRecordLocationRelation relation = DatabaseClient.getInstance(getApplicationContext()).getTripDatabase().tripRecordDao().getByTripId(ride.getId());
-                    totalDistanceValue = TrackerUtility.calculateDistanceInKilometer(relation.getLocations());
+                    List<com.pyramid.conveyance.respository.entity.Location> tripLocations = DatabaseClient.getInstance(getApplicationContext()).getTripDatabase().locationDao().getAllLocationsByTripId(ride.getId());
+                    totalDistanceValue = TrackerUtility.calculateDistanceInKilometer(tripLocations);
                 }
                 ride.setRideDistance(totalDistanceValue);
                 File file = new File(imagePath);

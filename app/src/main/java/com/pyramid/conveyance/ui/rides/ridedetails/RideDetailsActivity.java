@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,10 +30,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.snackbar.Snackbar;
-import com.pyramid.conveyance.respository.entity.TripRecordLocationRelation;
-import com.pyramid.conveyance.respository.executers.AppExecutors;
-import com.pyramid.conveyance.services.MyService;
-import com.pyramid.conveyance.utility.TrackerUtility;
 import com.pyramid.conveyance.LocationApp;
 import com.pyramid.conveyance.R;
 import com.pyramid.conveyance.api.ApiHandler;
@@ -41,7 +38,11 @@ import com.pyramid.conveyance.api.response.RideDetailsResponse;
 import com.pyramid.conveyance.respository.databaseclient.DatabaseClient;
 import com.pyramid.conveyance.respository.entity.Location;
 import com.pyramid.conveyance.respository.entity.TripRecord;
+import com.pyramid.conveyance.respository.entity.TripRecordLocationRelation;
+import com.pyramid.conveyance.respository.executers.AppExecutors;
+import com.pyramid.conveyance.services.MyService;
 import com.pyramid.conveyance.ui.statistics.StatisticsFragment;
+import com.pyramid.conveyance.utility.TrackerUtility;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class RideDetailsActivity extends AppCompatActivity implements OnMapReady
     private MapView mapView;
     private RideDetailsResponse rideDetailsResponse;
     private Long rideId;
-    private Boolean isInCompleteRide;
+    private boolean isInCompleteRide;
     private Boolean isFromStatisticScreen;
     private static final int REQUEST_CODE = 11;
 
@@ -77,10 +78,6 @@ public class RideDetailsActivity extends AppCompatActivity implements OnMapReady
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ride_details);
-
-//        if (!checkPermissions()) {
-//            requestPermissions();
-//        }
 
         rideId = getIntent().getExtras().getLong("rideId");
         isInCompleteRide = getIntent().getExtras().getBoolean("isInCompleteRide", false);
@@ -136,7 +133,7 @@ public class RideDetailsActivity extends AppCompatActivity implements OnMapReady
 
                        rideDateTextView.setText(TrackerUtility.getDateString(startDate, "dd MMM yyyy"));
                        if (rideDetailsResponse.getReimbursementAmount() != null) {
-                           rideAmountTextView.setText("Rs " + String.valueOf(rideDetailsResponse.getReimbursementAmount()));
+                           rideAmountTextView.setText("Rs " + rideDetailsResponse.getReimbursementAmount().toString());
                        } else {
                            rideAmountTextView.setText("Waiting");
                        }
@@ -390,7 +387,7 @@ public class RideDetailsActivity extends AppCompatActivity implements OnMapReady
             RequestBody fileBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
             RequestBody id = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(rideId));
             //RequestBody ridePurpose = RequestBody.create(MediaType.parse("text/plain"), rideDetailsResponse.getPurpose());
-            RequestBody rideStartTime = RequestBody.create(MediaType.parse("text/plain"), rideDetailsResponse.getRideTime());
+//            RequestBody rideStartTime = RequestBody.create(MediaType.parse("text/plain"), rideDetailsResponse.getRideTime());
             RequestBody rideEndTime = RequestBody.create(MediaType.parse("text/plain"), endTime);
             RequestBody rideDate = RequestBody.create(MediaType.parse("text/plain"), rideDetailsResponse.getRideDate());
             RequestBody rideDistance = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(distanceInKm));
@@ -413,13 +410,12 @@ public class RideDetailsActivity extends AppCompatActivity implements OnMapReady
                     if (response.code() == 200 || response.code() == 201) {
                         //tripRecord.setStatus(true);
                         StatisticsFragment.isRideListRefreshRequired = isFromStatisticScreen;
-                        AppExecutors.getInstance().getDiskIO().execute(() -> {
-                            DatabaseClient.getInstance(getApplicationContext()).getTripDatabase().tripRecordDao().updateRecord(tripRecord);
-                        });
+                        AppExecutors.getInstance().getDiskIO().execute(() ->
+                            DatabaseClient.getInstance(getApplicationContext()).getTripDatabase().tripRecordDao().updateRecord(tripRecord)
+                        );
                         isInCompleteRide = false;
                         completeRideButton.setVisibility(View.GONE);
-
-                        if (MyService.isTrackingOn !=null && MyService.isTrackingOn.getValue()) {
+                        if (MyService.isTrackingOn !=null && Boolean.TRUE.equals(MyService.isTrackingOn.getValue())) {
                            if  (MyService.runningTripRecord != null) {
                                 TripRecord tripRecord1 = MyService.runningTripRecord.getValue();
                                 if (rideId.equals(tripRecord1.getTripId())) {
@@ -591,13 +587,13 @@ public class RideDetailsActivity extends AppCompatActivity implements OnMapReady
      * @param actionStringId   The text of the action item.
      * @param listener         The listener associated with the Snackbar action.
      */
-    private void showSnackbar(final int mainTextStringId, final int actionStringId,
-                              View.OnClickListener listener) {
-        Snackbar.make(findViewById(android.R.id.content),
-                        getString(mainTextStringId),
-                        Snackbar.LENGTH_INDEFINITE)
-                .setAction(getString(actionStringId), listener).show();
-    }
+//    private void showSnackbar(final int mainTextStringId, final int actionStringId,
+//                              View.OnClickListener listener) {
+//        Snackbar.make(findViewById(android.R.id.content),
+//                        getString(mainTextStringId),
+//                        Snackbar.LENGTH_INDEFINITE)
+//                .setAction(getString(actionStringId), listener).show();
+//    }
 
     public void updateLocationsOnServer(List<Location> unSyncedLocations, String imagePath, Dialog dialog) {
         updateLocationsOnServer(unSyncedLocations, 0, imagePath, dialog);
@@ -662,4 +658,32 @@ public class RideDetailsActivity extends AppCompatActivity implements OnMapReady
             });
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        // Release references to UI elements
+        rideAmountTextView = null;
+        rideDateTextView = null;
+        rideDurationTextView = null;
+        rideDistanceTextView = null;
+        ridePurposeTextView = null;
+        completeRideButton = null;
+
+        // Release the Google Map and MapView resources
+        if (mapView != null) {
+            mapView.onDestroy();
+        }
+
+        // Remove the mapView from its parent to prevent potential leaks
+        if (mapView != null && mapView.getParent() != null) {
+            ((ViewGroup) mapView.getParent()).removeView(mapView);
+        }
+
+        // Release any other references or resources specific to your activity
+        rideDetailsResponse = null;
+        rideId = null;
+
+        super.onDestroy();
+    }
+
 }

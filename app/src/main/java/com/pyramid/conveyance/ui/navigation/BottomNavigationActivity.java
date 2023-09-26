@@ -1,7 +1,9 @@
 package com.pyramid.conveyance.ui.navigation;
 
+import static com.pyramid.conveyance.LocationApp.dialog;
 import static com.pyramid.conveyance.LocationApp.employeeProfileLiveData;
 import static com.pyramid.conveyance.LocationApp.getUserName;
+import static com.pyramid.conveyance.LocationApp.progressDialog;
 import static java.io.File.createTempFile;
 
 import android.Manifest;
@@ -24,6 +26,7 @@ import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
@@ -56,6 +59,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.pyramid.conveyance.respository.executers.AppExecutors;
 import com.pyramid.conveyance.services.MyService;
+import com.pyramid.conveyance.ui.customcomponent.MyProgressDialog;
 import com.pyramid.conveyance.utility.TrackerUtility;
 import com.pyramid.conveyance.LocationApp;
 import com.pyramid.conveyance.R;
@@ -337,6 +341,12 @@ public class BottomNavigationActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         LocationApp.dismissLoader();
+//        if (progressDialog.isShowing()) {
+//            progressDialog.dismiss();
+//        }
+//        if (dialog != null && dialog.isShowing()) {
+//            dialog.dismiss();
+//        }
     }
 
     @Override

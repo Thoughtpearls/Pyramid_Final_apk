@@ -18,7 +18,10 @@ package com.pyramid.conveyance.ui.recordride;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.PictureInPictureParams;
+import android.app.RemoteAction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -36,15 +39,18 @@ import android.os.Looper;
 import android.os.PersistableBundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.Rational;
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -72,6 +78,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.hypertrack.hyperlog.HyperLog;
@@ -82,23 +89,22 @@ import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
-import com.pyramid.conveyance.api.SearchRideFilter;
-import com.pyramid.conveyance.api.response.CreateTurnOnGpsRequest;
-import com.pyramid.conveyance.api.response.Ride;
-import com.pyramid.conveyance.api.response.RideReason;
-import com.pyramid.conveyance.respository.entity.TripRecordLocationRelation;
-import com.pyramid.conveyance.respository.executers.AppExecutors;
-import com.pyramid.conveyance.services.MyService;
-import com.pyramid.conveyance.ui.navigation.BottomNavigationActivity;
-import com.pyramid.conveyance.utility.SphericalUtil;
-import com.pyramid.conveyance.utility.TrackerUtility;
 import com.pyramid.conveyance.LocationApp;
 import com.pyramid.conveyance.R;
 import com.pyramid.conveyance.api.ApiHandler;
+import com.pyramid.conveyance.api.SearchRideFilter;
 import com.pyramid.conveyance.api.SearchRideResponse;
+import com.pyramid.conveyance.api.response.CreateTurnOnGpsRequest;
+import com.pyramid.conveyance.api.response.Ride;
+import com.pyramid.conveyance.api.response.RideReason;
 import com.pyramid.conveyance.respository.databaseclient.DatabaseClient;
 import com.pyramid.conveyance.respository.entity.TripRecord;
+import com.pyramid.conveyance.respository.executers.AppExecutors;
+import com.pyramid.conveyance.services.MyService;
 import com.pyramid.conveyance.ui.customcomponent.CustomDialog;
+import com.pyramid.conveyance.ui.navigation.BottomNavigationActivity;
+import com.pyramid.conveyance.utility.SphericalUtil;
+import com.pyramid.conveyance.utility.TrackerUtility;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -184,6 +190,8 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
     // UI Widgets.
     private Button mStartUpdatesButton;
     private Button mStopUpdatesButton;
+    AppBarLayout appBarLayout;
+    GridLayout durationLayout;
     private TextView totalDurationTextView;
     private TextView totalDistanceTextView;
 
@@ -217,6 +225,8 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
         LocationApp.logs("Record Activity : onCreate");
         // Locate the UI widgets.
         mStartUpdatesButton = findViewById(R.id.start_updates_button);
+         appBarLayout = findViewById(R.id.appbar);
+         durationLayout = findViewById(R.id.duration_layout);
         mStartUpdatesButton.setOnClickListener(view -> {
             try {
 
@@ -458,14 +468,14 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
         if (mRequestingLocationUpdates) {
                 AppExecutors.getInstance().getDiskIO().execute(() -> {
                     runningTripRecord = DatabaseClient.getInstance(getApplicationContext()).getTripDatabase().tripRecordDao().getRunningTrip();
-                    TripRecordLocationRelation locationRelation = null;
+                    List<com.pyramid.conveyance.respository.entity.Location> locationRelation = null;
                     if (runningTripRecord != null && !runningTripRecord.isStatus()) {
                         //mRequestingLocationUpdates = true;
                         long diff = System.currentTimeMillis() - runningTripRecord.getStartTimestamp();
                         long seconds = TimeUnit.MILLISECONDS.toSeconds(diff);
                         startTimer((int)seconds);
-                        locationRelation = DatabaseClient.getInstance(getApplicationContext()).getTripDatabase().tripRecordDao().getByTripId(runningTripRecord.getTripId());
-                        locationList = locationRelation.locations;
+                        locationRelation = DatabaseClient.getInstance(getApplicationContext()).getTripDatabase().locationDao().getAllLocationsByTripId(runningTripRecord.getTripId());
+                        locationList = locationRelation;
                         if (!TrackerUtility.isMyServiceRunning(MyService.class, this)) {
                             LocationApp.logs("TRIP", "Restarting background service :");
                             //MyService.runningTripRecord.setValue(runningTripRecord);
@@ -481,10 +491,10 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
                         }
                     }
 
-                    TripRecordLocationRelation finalLocationRelation = locationRelation;
+                    List<com.pyramid.conveyance.respository.entity.Location> finalLocationRelation = locationRelation;
                     runOnUiThread(() -> {
                         setButtonsEnabledState();
-                        reDrawTravelPathOnMap(finalLocationRelation != null ? finalLocationRelation.getLocations() : new ArrayList<>());
+                        reDrawTravelPathOnMap((finalLocationRelation != null && !finalLocationRelation.isEmpty()) ? finalLocationRelation : new ArrayList<>());
                     });
                 });
         } else {
@@ -517,7 +527,7 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
     private void moveCameraToUser(LatLng latLng) {
         if (latLng != null && mMap != null ) {
             try {
-                animateToMeters(1000, latLng);
+                animateToMeters(500, latLng);
             /* mMap.animateCamera(
                     CameraUpdateFactory.newLatLngZoom(
                             latLng,
@@ -844,17 +854,40 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
      */
     private void setButtonsEnabledState() {
         if (mRequestingLocationUpdates) {
+            if(isInPictureInPictureMode()){
+                AppBarLayout appBarLayout = findViewById(R.id.appbar);
+                appBarLayout.setVisibility(View.GONE);
+                GridLayout durationLayout = findViewById(R.id.duration_layout);
+                durationLayout.setVisibility(View.GONE);
+                mStopUpdatesButton.setVisibility(View.GONE);
+            }
             mStartUpdatesButton.setEnabled(false);
             mStartUpdatesButton.setVisibility(View.GONE);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mStopUpdatesButton.setEnabled(true);
-                    mStopUpdatesButton.setVisibility(View.VISIBLE);
+            new Handler().postDelayed(() -> {
+                Toolbar toolbar = findViewById(R.id.toolbar);
+                setSupportActionBar(toolbar);
+
+                // Disable the back button in the ActionBar
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                mStopUpdatesButton.setEnabled(true);
+                mStopUpdatesButton.setVisibility(View.VISIBLE);
+                appBarLayout.setVisibility(View.VISIBLE);
+                durationLayout.setVisibility(View.VISIBLE);
+                if(isInPictureInPictureMode()){
+                    AppBarLayout appBarLayout = findViewById(R.id.appbar);
+                    appBarLayout.setVisibility(View.GONE);
+                    GridLayout durationLayout = findViewById(R.id.duration_layout);
+                    durationLayout.setVisibility(View.GONE);
+                    mStopUpdatesButton.setVisibility(View.GONE);
                 }
             }, 3000);
 
         } else {
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+
+            // Disable the back button in the ActionBar
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             mStartUpdatesButton.setEnabled(true);
             mStartUpdatesButton.setVisibility(View.VISIBLE);
             mStopUpdatesButton.setEnabled(false);
@@ -968,10 +1001,36 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        if (timerHandler != null && isServiceRunning) {
-            timerHandler.removeCallbacks(timerRunnable);
+//        super.onBackPressed();
+        if (timerHandler != null && isServiceRunning && mapView !=null){
+        new AlertDialog.Builder(this)
+                .setMessage("You can't go back in ongoing ride").setPositiveButton("ok",null)
+//                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+////                    @Override
+////                    public void onClick(DialogInterface dialog, int which) {
+//////                        // Close the activity
+//////                        finish();
+////                    }
+//                })
+//                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        // Call your custom method here
+//                        if (timerHandler != null && isServiceRunning) {
+//                            timerHandler.removeCallbacks(timerRunnable);
+//                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                                    enterPiPMode();
+//                                }
+//                            }
+//                        }
+//                    }
+//                })
+                .show();}
+        else {
+            super.onBackPressed();
         }
+
     }
 
     /**
@@ -1394,5 +1453,40 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
                 }
             });
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void enterPiPMode() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && timerHandler != null && isServiceRunning && mapView !=null) {
+            AppBarLayout appBarLayout = findViewById(R.id.appbar);
+            appBarLayout.setVisibility(View.GONE);
+            GridLayout durationLayout = findViewById(R.id.duration_layout);
+            durationLayout.setVisibility(View.GONE);
+            mStopUpdatesButton.setVisibility(View.GONE);
+            Rational aspectRatio = new Rational(3, 5); // Set the aspect ratio of the PiP window.
+            PictureInPictureParams params = new PictureInPictureParams.Builder()
+                    .setAspectRatio(aspectRatio)
+                    .build();
+            enterPictureInPictureMode(params);
+        }
+    }
+
+    @Override
+    public void onUserLeaveHint() {
+        super.onUserLeaveHint();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ) {
+            // Check if PiP mode is supported.
+            if (isInPictureInPictureMode()) {
+                // You're already in PiP mode; no need to enter again.
+                return;
+            }
+            // Enter PiP mode when the user leaves the activity.
+            enterPiPMode();
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
 import com.pyramid.conveyance.respository.converter.UUIDConverter;
+import com.pyramid.conveyance.respository.dao.LocationDao;
 import com.pyramid.conveyance.respository.dao.TripRecordDao;
 import com.pyramid.conveyance.respository.entity.Location;
 import com.pyramid.conveyance.respository.entity.TripRecord;
@@ -14,4 +15,5 @@ import com.pyramid.conveyance.respository.entity.TripRecord;
 @TypeConverters({UUIDConverter.class})
 public abstract class TripDatabase extends RoomDatabase {
     public abstract TripRecordDao tripRecordDao();
+    public abstract LocationDao locationDao();
 }

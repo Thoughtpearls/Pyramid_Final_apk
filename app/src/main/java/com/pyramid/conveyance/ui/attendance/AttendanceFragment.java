@@ -458,7 +458,29 @@ public class AttendanceFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        // Release references to views and other resources
+//        binding.test.setOnScrollChangeListener(null); // Remove the scroll change listener
+//        binding.swipeRefreshLayout.setOnRefreshListener(null); // Remove the refresh listener
+
+        // Release references to listeners and resources
         binding = null;
+
+//        if (mCheckInResultLauncher != null) {
+//            mCheckInResultLauncher.unregister(); // Unregister the result launcher
+//            mCheckInResultLauncher = null;
+//        }
+
+//        if (mCheckOutResultLauncher != null) {
+//            mCheckOutResultLauncher.unregister(); // Unregister the result launcher
+//            mCheckOutResultLauncher = null;
+//        }
+
+        // Check if caldroidFragment is not null before calling onDestroy
+//        if (caldroidFragment != null) {
+//            // Release any references associated with caldroidFragment
+//            caldroidFragment.setCaldroidListener(null);
+//            caldroidFragment = null;
+//        }
     }
 
     public void markAttendance(String imagePath, Attendance attendance, AlertDialog alertDialog) {

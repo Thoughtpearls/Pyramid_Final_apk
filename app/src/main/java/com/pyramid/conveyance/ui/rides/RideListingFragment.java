@@ -32,6 +32,7 @@ import com.pyramid.conveyance.api.response.Ride;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -174,6 +175,7 @@ public class RideListingFragment extends Fragment {
                     public void onResponse(Call<SearchRideResponse> call, Response<SearchRideResponse> response) {
                         if (response.code() == 200) {
                             tripRecordList = response.body().getRideDTOList();
+                            Collections.reverse(tripRecordList);
                             if (tripRecordList.size() == 0) {
                                 emptyRideTextview.setVisibility(View.VISIBLE);
                                 list.setVisibility(View.GONE);
@@ -205,4 +207,32 @@ public class RideListingFragment extends Fragment {
             //}
         });
     }
-}
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        // Clear references to UI elements
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setOnRefreshListener(null); // Remove the refresh listener
+            swipeRefreshLayout = null;
+        }
+
+        // Ensure that static or non-null references are not set to null
+        // Example: mColumnCount is a static field, so don't set it to null
+        // mColumnCount = 1;
+
+        // Clear references to other objects and resources if necessary
+        list = null;
+        emptyRideTextview = null;
+        errorAnimation = null;
+        recyclerView = null;
+
+        // Clear references to any other objects or resources as needed
+        context = null;
+        tripRecordList.clear(); // Clear the list, assuming it's not static
+
+        // Note: mActivity should be allowed to be garbage collected.
+    }
+
+        }

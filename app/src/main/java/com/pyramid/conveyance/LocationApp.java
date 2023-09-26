@@ -153,12 +153,19 @@ public class LocationApp extends Application implements LifecycleEventObserver {
 
     @Override
     public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
-       if (event == Lifecycle.Event.ON_STOP) {
-           isAppInBackground = true;
-       } else if (event == Lifecycle.Event.ON_START) {
-           isAppInBackground = false;
-       }
+        if (event == Lifecycle.Event.ON_STOP) {
+            isAppInBackground = true;
+        } else if (event == Lifecycle.Event.ON_START) {
+            isAppInBackground = false;
+        } else if (event == Lifecycle.Event.ON_DESTROY) {
+//             Release the progressDialog and associated resources when the application is destroyed
+            if (progressDialog != null) {
+                progressDialog.dismiss();
+                progressDialog = null;
+            }
+        }
     }
+
 
     public static boolean isAppInBackground() {
         return isAppInBackground;

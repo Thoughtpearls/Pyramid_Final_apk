@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.pyramid.conveyance.ui.rides.placeholder.PlaceholderContent;
 import com.pyramid.conveyance.utility.TrackerUtility;
 import com.pyramid.conveyance.api.response.Ride;
@@ -82,6 +83,10 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
             holder.rideApprovedAmount.setVisibility(View.VISIBLE);
             holder.rideApprovedAmountIcon.setVisibility(View.GONE);
             holder.rideApprovedAmount.setText("Rs " + ride.getReimbursementCost().toString());
+            if(ride.getRideSnapshot() != null){
+            Glide.with(context)
+                    .load(ride.getRideSnapshot()) // Assuming ride.getRideSnapshot() returns the S3 bucket URL as a string
+                    .into(holder.rideSnapshot);}
         } else {
             holder.rideApprovedAmount.setVisibility(View.GONE);
             holder.rideApprovedAmountIcon.setVisibility(View.VISIBLE);
@@ -103,10 +108,13 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
         public final TextView rideApprovedAmount;
         public final TextView rideApprovedAmountIcon;
         public final ImageView incompleteIcon;
+        public final ImageView rideSnapshot;
         public Ride mItem;
 
         public ViewHolder(FragmentRideDetailsBinding binding) {
             super(binding.getRoot());
+
+            rideSnapshot = binding.rideSnapshot;
             duration = binding.totaldurationTextView;
             distance = binding.totalDistance;
             rideDate = binding.rideDate;

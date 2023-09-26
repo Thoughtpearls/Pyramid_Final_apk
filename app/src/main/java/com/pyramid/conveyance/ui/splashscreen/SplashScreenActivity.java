@@ -66,8 +66,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                 Manifest.permission.ACCESS_FINE_LOCATION,
                                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_NOTIFICATION_POLICY,
-                                Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS};
+                                Manifest.permission.ACCESS_NOTIFICATION_POLICY};
             } else {
                 permissions =
                         new String[]{
@@ -76,7 +75,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                                 Manifest.permission.ACCESS_COARSE_LOCATION,
                                 Manifest.permission.POST_NOTIFICATIONS,
                                 Manifest.permission.READ_MEDIA_IMAGES,
-                        Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS};
+                        Manifest.permission.FOREGROUND_SERVICE};
             }
             final StringBuilder deniedPermissions = new StringBuilder();
             Dexter.withContext(getApplicationContext())
