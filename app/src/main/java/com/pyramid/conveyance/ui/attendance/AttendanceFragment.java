@@ -648,8 +648,8 @@ public class AttendanceFragment extends Fragment {
                     });
                 }
             });
-
         }
+
     }
 
 
@@ -657,9 +657,6 @@ public class AttendanceFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         LocationApp.logs("Attendance : onActivityResult :");
-        Date myDate = new Date();
-        String date = TrackerUtility.getDateString(myDate);
-        String time = TrackerUtility.getTimeString(myDate);
 
         LocationManager locationManager = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
@@ -702,6 +699,7 @@ public class AttendanceFragment extends Fragment {
             LocationApp.logs("Attendance : onActivityResult : checkInImageFile Path: data not null Path:" + path);
             fileUri = Uri.parse(path);
             LocationApp.logs("Attendance : onActivityResult Path :" + getImageFilePath(fileUri));
+
         }
 
         if (requestCode == AttendanceFragment.ATTENDANCE_CHECKIN_CAMERA_REQUEST && resultCode == RESULT_OK) {

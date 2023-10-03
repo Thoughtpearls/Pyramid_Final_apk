@@ -179,6 +179,11 @@ public class BottomNavigationActivity extends AppCompatActivity {
             intentBackground.setData(Uri.parse("package:" + packageName));
             startActivity(intentBackground);
         }
+//        Intent intent = new Intent();
+//        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+//        Uri uri = Uri.fromParts("package", getPackageName(), null);
+//        intent.setData(uri);
+//        startActivity(intent);
     }
 
     private void initToolbar() {
@@ -341,12 +346,12 @@ public class BottomNavigationActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         LocationApp.dismissLoader();
-//        if (progressDialog.isShowing()) {
-//            progressDialog.dismiss();
-//        }
-//        if (dialog != null && dialog.isShowing()) {
-//            dialog.dismiss();
-//        }
+        if (progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+        }
     }
 
     @Override

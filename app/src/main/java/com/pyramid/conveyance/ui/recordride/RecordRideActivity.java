@@ -19,14 +19,14 @@ package com.pyramid.conveyance.ui.recordride;
 import android.Manifest;
 import android.app.Activity;
 import android.app.PictureInPictureParams;
-import android.app.RemoteAction;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Rect;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PersistableBundle;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.Rational;
@@ -51,6 +52,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -107,6 +109,7 @@ import com.pyramid.conveyance.utility.SphericalUtil;
 import com.pyramid.conveyance.utility.TrackerUtility;
 
 import java.io.File;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -128,7 +131,7 @@ import retrofit2.Response;
 /**
  * Using location settings.
  * <p/>
- * Uses the {@link com.google.android.gms.location.SettingsApi} to ensure that the device's system
+ * Uses the {@link com.google.android.gms.location.SettingsClient} to ensure that the device's system
  * settings are properly configured for the app's location needs. When making a request to
  * Location services, the device's system settings may be in a state that prevents the app from
  * obtaining the location data that it needs. For example, GPS or Wi-Fi scanning may be switched
@@ -199,6 +202,7 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
     private MapView mapView;
     private Runnable timerRunnable;
     private Handler timerHandler;
+    private boolean isActivityResumed = false;
 
     /**
      * Tracks the status of the location updates request. Value changes when the user presses the
@@ -211,6 +215,12 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
     private List<com.pyramid.conveyance.respository.entity.Location> locationList = new ArrayList<>();
     private ArrayList<RideReason> ridePurposeList = new ArrayList<>();
     private boolean isStopRideTriggered;
+    private Activity activity;
+    private PowerManager.WakeLock wakeLock;
+
+// Don't forget to release the WakeLock when you're done
+// wakeLock.release();
+
 
     @Override
     public void onPostCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
@@ -221,7 +231,9 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.location_activity);
+        activity=this;
         locationList = new ArrayList<>();
+        setupWakeLock();
         LocationApp.logs("Record Activity : onCreate");
         // Locate the UI widgets.
         mStartUpdatesButton = findViewById(R.id.start_updates_button);
@@ -517,23 +529,10 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
         return locations == null || locations.size() == 0;
     }
 
-    private void moveCameraToUser() {
-        if (!isListEmptyOrNull(locationList)) {
-            com.pyramid.conveyance.respository.entity.Location location = locationList.get(locationList.size() - 1);
-            moveCameraToUser(new LatLng(location.getLatitude(), location.getLongitude()));
-        }
-    }
-
     private void moveCameraToUser(LatLng latLng) {
         if (latLng != null && mMap != null ) {
             try {
                 animateToMeters(500, latLng);
-            /* mMap.animateCamera(
-                    CameraUpdateFactory.newLatLngZoom(
-                            latLng,
-                            LocationApp.ZOOM_LEVEL
-                    )
-            );*/
             } catch (Exception e) {
                 LocationApp.logs("TRIP", "error in moving map :" + e.getMessage());
             }
@@ -646,6 +645,7 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
         locationList = new ArrayList<>();
         runningTripRecord = new TripRecord();
         startTimer();
+        acquireWakeLock();
 
         AppExecutors.getInstance().getDiskIO().execute(() -> {
 
@@ -721,6 +721,7 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
      */
     public void stopUpdatesButtonHandler(View view) {
         isStopRideTriggered = true;
+        releaseWakeLock();
         LocationApp.logs("TRIP", "stopUpdatesButtonHandler : clicked");
         // It is a good practice to remove location requests when the activity is in a paused or
         // stopped state. Doing so helps battery performance and is especially
@@ -866,7 +867,6 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
             new Handler().postDelayed(() -> {
                 Toolbar toolbar = findViewById(R.id.toolbar);
                 setSupportActionBar(toolbar);
-
                 // Disable the back button in the ActionBar
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                 mStopUpdatesButton.setEnabled(true);
@@ -912,10 +912,7 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
                     com.pyramid.conveyance.respository.entity.Location lastLocation = locationList.get(locationList.size() - 1);
                     origin = new LatLng(preLastLocation.getLatitude(), preLastLocation.getLongitude());
                     dest = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-                } /*else {
-                    origin = new LatLng(mlastLocation.getLatitude(), mlastLocation.getLongitude());
-                    dest = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-                }*/
+                }
 
                 if (locationList.size() < 3 && !runningTripRecord.isStatus()) {
                     com.pyramid.conveyance.respository.entity.Location start = locationList.get(0);
@@ -957,13 +954,6 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
                 startMarkerOptions.position(start);
                 mMap.addMarker(startMarkerOptions);
             }
-
-            /*if (dest != null && !isServiceRunning) {
-                MarkerOptions endMarkerOptions = new MarkerOptions();
-                endMarkerOptions.title("End point");
-                endMarkerOptions.position(dest);
-                mMap.addMarker(endMarkerOptions);
-            }*/
         }
 
         polylineOptions.color(LocationApp.POLYLINE_COLOR);
@@ -975,57 +965,12 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
         mMap.getUiSettings().setAllGesturesEnabled(true);
         moveCameraToUser(dest);
     }
-
-    private void centerMapOnMyLocation() {
-
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String provider = locationManager.getBestProvider(criteria, true);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        Location location = locationManager.getLastKnownLocation(provider);
-
-        if (location != null) {
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            moveCameraToUser(latLng);
-        }
-    }
-
     @Override
     public void onBackPressed() {
 //        super.onBackPressed();
         if (timerHandler != null && isServiceRunning && mapView !=null){
         new AlertDialog.Builder(this)
                 .setMessage("You can't go back in ongoing ride").setPositiveButton("ok",null)
-//                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-////                    @Override
-////                    public void onClick(DialogInterface dialog, int which) {
-//////                        // Close the activity
-//////                        finish();
-////                    }
-//                })
-//                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        // Call your custom method here
-//                        if (timerHandler != null && isServiceRunning) {
-//                            timerHandler.removeCallbacks(timerRunnable);
-//                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                                    enterPiPMode();
-//                                }
-//                            }
-//                        }
-//                    }
-//                })
                 .show();}
         else {
             super.onBackPressed();
@@ -1041,18 +986,12 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
             LocationApp.logs(TAG, "stopLocationUpdates: updates never requested, no-op.");
             return;
         }
-
-        /*if (locationList != null && locationList.size() > 1) {
-            com.pyramid.conveyance.entity.respository.conveyance.Location lastLocation = locationList.get(locationList.size() - 1);
-            LatLng lastPosition = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastPosition, 13f));
-        }*/
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        isActivityResumed = true;
         if (mapView != null) {
             mapView.onResume();
         }
@@ -1069,8 +1008,13 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     protected void onPause() {
         super.onPause();
+        try{
+        isActivityResumed = false;
         if (mapView != null) {
             mapView.onPause();
+        }}
+        catch (Exception e) {
+            Log.d("Crash", e.toString());
         }
     }
 
@@ -1082,6 +1026,7 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
             mapView.onStart();
         }
     }
+
 
     @Override
     protected void onStop() {
@@ -1147,61 +1092,6 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
             return permissionState == PackageManager.PERMISSION_GRANTED;
         }
     }
-
-    private void requestPermissions() {
-        boolean shouldProvideRationale =
-                ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION) &&
-                        ActivityCompat.shouldShowRequestPermissionRationale(this,
-                                Manifest.permission.POST_NOTIFICATIONS);
-
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
-        if (shouldProvideRationale) {
-            Log.i(TAG, "Displaying permission rationale to provide additional context.");
-            showSnackbar(R.string.permission_rationale,
-                    android.R.string.ok, view -> {
-                        // Request permission
-                        String[] permission;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            permission = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.ACCESS_BACKGROUND_LOCATION};
-                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            permission = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.POST_NOTIFICATIONS };
-                        } else {
-                            permission = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-                        }
-                        ActivityCompat.requestPermissions(RecordRideActivity.this, permission,
-                                REQUEST_PERMISSIONS_REQUEST_CODE);
-                    });
-        } else {
-            Log.i(TAG, "Requesting permission");
-            // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
-            // previously and checked "Never ask again".
-            String[] permission;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                permission = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.POST_NOTIFICATIONS};
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                permission = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_BACKGROUND_LOCATION};
-            } else {
-                permission = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-            }
-            ActivityCompat.requestPermissions(RecordRideActivity.this, permission,
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        }
-    }
-
-//    private void requestBackgroundLocationPermission() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-//                    != PackageManager.PERMISSION_GRANTED) {
-//                ActivityCompat.requestPermissions(this,
-//                        new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-//                        REQUEST_PERMISSIONS_REQUEST_CODE);
-//            }
-//        }
-//    }
-
     /**
      * Callback received when a permissions request has been completed.
      */
@@ -1221,17 +1111,6 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
                     startLocationUpdates();
                 }
             } else {
-                // Permission denied.
-
-                // Notify the user via a SnackBar that they have rejected a core permission for the
-                // app, which makes the Activity useless. In a real app, core permissions would
-                // typically be best requested during a welcome-screen flow.
-
-                // Additionally, it is important to remember that a permission might have been
-                // rejected without asking the user for permission (device policy or "Never ask
-                // again" prompts). Therefore, a user interface affordance is typically implemented
-                // when permissions are denied. Otherwise, your app could appear unresponsive to
-                // touches or interactions which have required permissions.
                 showSnackbar(R.string.permission_denied_explanation,
                         R.string.settings, view -> {
                             // Build intent that displays the App settings screen.
@@ -1318,11 +1197,6 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
                 include(SphericalUtil.computeOffset(center, radius, 270)).build();
     }
 
-    @Override
-    public void onMapLoaded() {
-
-    }
-
     private void fetchTodaysRides() {
         LocationApp.logs("Fetch Today's Rides");
         AppExecutors.getInstance().getNetworkIO().execute(() -> {
@@ -1380,113 +1254,172 @@ public class RecordRideActivity extends AppCompatActivity implements OnMapReadyC
                     mStartUpdatesButton.setEnabled(true);
                 }
             });
-            //}
+
         });
     }
 
     boolean isRidePurposeOkButtonClicked = false;
     public void showRidePurposeDialog() {
-        if(!RecordRideActivity.this.isFinishing()) {
+        if (!isFinishing()) {
             CustomDialog dialog = new CustomDialog(this, ridePurposeList);
             dialog.show(dialogInterface -> {
-                if (dialog.isCancelled()) {
-                    mStartUpdatesButton.setEnabled(true);
-                    return;
-                }
-                LocationApp.logs("TRIP", "showRidePurposeDialog button clicked");
-                if (isRidePurposeOkButtonClicked) {
-                    LocationApp.logs("TRIP", "showRidePurposeDialog button already clicked");
-                    return;
-                }
-
-                isRidePurposeOkButtonClicked = true;
-                Date myDate = new Date();
-                String startDate = TrackerUtility.getDateString(myDate);
-                String startTime = TrackerUtility.getTimeString(myDate);
-                String ridePurposeId = ridePurposeList.get(dialog.getSelectedPosition()).getId();
-                Ride ride = new Ride();
-                ride.setRideDate(startDate);
-                ride.setEmployeeRide(LocationApp.getEmployeeProfile().getEmployeeCode());
-                ride.setRideStartTime(startTime);
-                ride.setRidePurpose(ridePurposeId);
-                ride.setRideDistance(0d);
-
-                Map<String, String> params = new HashMap<>();
-                params.put("RideDate", ride.getRideDate());
-                params.put("ridePurpose", ride.getRidePurpose());
-                params.put("rideStartTime", ride.getRideStartTime());
-
-                if (!TrackerUtility.checkConnection(getApplicationContext())) {
-                    Toast.makeText(this, "Please check your network connection", Toast.LENGTH_LONG).show();
-                    isRidePurposeOkButtonClicked = false;
-                    mStartUpdatesButton.setEnabled(true);
-                    return;
-                } else {
-
-                    Call<String> createRideCall = ApiHandler.getClient().createRide(LocationApp.getUserName(this), LocationApp.DEVICE_ID ,params);
-                    createRideCall.enqueue(new Callback<String>() {
-
-                        @Override
-                        public void onResponse(Call<String> call, Response<String> response) {
-                            if (response.code() == 201) {
-                                ride.setId(Long.parseLong(response.body()));
-                                startRide(ride);
-                            } else {
-                                String message = "Can not start ride at the moment. Please try after some time";
-                                if (response.code() == 401) {
-                                    message = "Can not start ride at the moment. Your account is blocked";
-                                }
-                                mStartUpdatesButton.setEnabled(true);
-                                Toast.makeText(RecordRideActivity.this, message, Toast.LENGTH_LONG).show();
-
-                            }
-                            isRidePurposeOkButtonClicked = false;
-                        }
-
-                        @Override
-                        public void onFailure(Call<String> call, Throwable t) {
-                            Toast.makeText(RecordRideActivity.this, "Issue in starting Ride. Please try after sometime.", Toast.LENGTH_LONG).show();
-                            mStartUpdatesButton.setEnabled(true);
-                            isRidePurposeOkButtonClicked = false;
-                        }
-                    });
-                }
+                handleDialogInterface(dialog);
             });
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void handleDialogInterface(CustomDialog dialog) {
+        if (dialog.isCancelled() || isRidePurposeOkButtonClicked) {
+            if (dialog.isCancelled() || isRidePurposeOkButtonClicked) mStartUpdatesButton.setEnabled(true);
+            return;
+        }
+
+        isRidePurposeOkButtonClicked = true;
+        Date myDate = new Date();
+        Ride ride = createRide(myDate, dialog.getSelectedPosition());
+        Map<String, String> params = createParamsMap(ride);
+
+        if (!TrackerUtility.checkConnection(getApplicationContext())) {
+            showToastAndReset(R.string.check_network_connection);
+            return;
+        }
+
+        Call<String> createRideCall = ApiHandler.getClient().createRide(LocationApp.getUserName(this), LocationApp.DEVICE_ID, params);
+        executeCreateRideCall(createRideCall, ride);
+    }
+
+    private Ride createRide(Date date, int selectedPosition) {
+        String startDate = TrackerUtility.getDateString(date);
+        String startTime = TrackerUtility.getTimeString(date);
+        String ridePurposeId = ridePurposeList.get(selectedPosition).getId();
+
+        Ride ride = new Ride();
+        ride.setRideDate(startDate);
+        ride.setEmployeeRide(LocationApp.getEmployeeProfile().getEmployeeCode());
+        ride.setRideStartTime(startTime);
+        ride.setRidePurpose(ridePurposeId);
+        ride.setRideDistance(0d);
+
+        return ride;
+    }
+
+    private Map<String, String> createParamsMap(Ride ride) {
+        Map<String, String> params = new HashMap<>();
+        params.put("RideDate", ride.getRideDate());
+        params.put("ridePurpose", ride.getRidePurpose());
+        params.put("rideStartTime", ride.getRideStartTime());
+        return params;
+    }
+
+    private void executeCreateRideCall(Call<String> call, Ride ride) {
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                int responseCode = response.code();
+                if (responseCode == HttpURLConnection.HTTP_CREATED) {
+                    ride.setId(Long.parseLong(response.body()));
+                    startRide(ride);
+                } else {
+                    int messageResId = responseCode == HttpURLConnection.HTTP_UNAUTHORIZED ?
+                            R.string.account_blocked_message : R.string.cannot_start_ride_message;
+                    showToastAndReset(messageResId);
+                }
+                isRidePurposeOkButtonClicked = false;
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                showToastAndReset(R.string.issue_starting_ride_message);
+            }
+        });
+    }
+
+    private void showToastAndReset(@StringRes int messageResId) {
+        Toast.makeText(this, messageResId, Toast.LENGTH_LONG).show();
+        mStartUpdatesButton.setEnabled(true);
+        isRidePurposeOkButtonClicked = false;
+    }
+
+
     public void enterPiPMode() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && timerHandler != null && isServiceRunning && mapView !=null) {
-            AppBarLayout appBarLayout = findViewById(R.id.appbar);
-            appBarLayout.setVisibility(View.GONE);
-            GridLayout durationLayout = findViewById(R.id.duration_layout);
-            durationLayout.setVisibility(View.GONE);
-            mStopUpdatesButton.setVisibility(View.GONE);
-            Rational aspectRatio = new Rational(3, 5); // Set the aspect ratio of the PiP window.
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && timerHandler != null && isServiceRunning && mapView != null) {
+
+            setVisibilityForViews(View.GONE);
+            View rootView = findViewById(android.R.id.content);
+            if (rootView == null) {
+                // Handle error: root view not found.
+                return;
+            }
+
+            Rect visibleRect = new Rect();
+            rootView.getGlobalVisibleRect(visibleRect);
+            Rational aspectRatio = new Rational(3, 5);
             PictureInPictureParams params = new PictureInPictureParams.Builder()
-                    .setAspectRatio(aspectRatio)
+                    .setAspectRatio(aspectRatio).setSourceRectHint(visibleRect)
                     .build();
-            enterPictureInPictureMode(params);
+            try {
+                enterPictureInPictureMode(params);
+            } catch (Exception e) {
+                Toast.makeText(this, "Failed to enter PiP mode", Toast.LENGTH_SHORT).show();
+                e.printStackTrace(); // <-- Check the log for this stack trace.
+            }
+
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        if (!isInPictureInPictureMode) {
+            if (isFinishing()) {
+//                startLocationUpdates();
+                setVisibilityForViews(View.GONE);
+            } else {
+//                refreshActivity();
+                setVisibilityForViews(View.VISIBLE);
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @Override
     public void onUserLeaveHint() {
         super.onUserLeaveHint();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ) {
-            // Check if PiP mode is supported.
-            if (isInPictureInPictureMode()) {
-                // You're already in PiP mode; no need to enter again.
-                return;
-            }
-            // Enter PiP mode when the user leaves the activity.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isServiceRunning && !isInPictureInPictureMode()&& isActivityResumed) {
             enterPiPMode();
         }
     }
+
+    private void refreshActivity() {
+        recreate();
+    }
+
+    private void setVisibilityForViews(int visibility) {
+        if (appBarLayout != null) appBarLayout.setVisibility(visibility);
+        if (durationLayout != null) durationLayout.setVisibility(visibility);
+        if (mStopUpdatesButton != null) mStopUpdatesButton.setVisibility(visibility);
+    }
+
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void onMapLoaded() {
+
+    }
+    private void setupWakeLock() {
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag");
+    }
+
+    public void acquireWakeLock() {
+        if (wakeLock != null && !wakeLock.isHeld()) {
+            wakeLock.acquire();
+        }
+    }
+
+    public void releaseWakeLock() {
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+        }
     }
 }

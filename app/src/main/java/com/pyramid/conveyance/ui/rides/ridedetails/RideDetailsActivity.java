@@ -29,7 +29,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.material.snackbar.Snackbar;
 import com.pyramid.conveyance.LocationApp;
 import com.pyramid.conveyance.R;
 import com.pyramid.conveyance.api.ApiHandler;
@@ -580,13 +579,13 @@ public class RideDetailsActivity extends AppCompatActivity implements OnMapReady
 //        }
 //    }
 
-    /**
-     * Shows a {@link Snackbar}.
-     *
-     * @param mainTextStringId The id for the string resource for the Snackbar text.
-     * @param actionStringId   The text of the action item.
-     * @param listener         The listener associated with the Snackbar action.
-     */
+//    /**
+//     * Shows a {@link Snackbar}.
+//     *
+//     * @param mainTextStringId The id for the string resource for the Snackbar text.
+//     * @param actionStringId   The text of the action item.
+//     * @param listener         The listener associated with the Snackbar action.
+//     */
 //    private void showSnackbar(final int mainTextStringId, final int actionStringId,
 //                              View.OnClickListener listener) {
 //        Snackbar.make(findViewById(android.R.id.content),

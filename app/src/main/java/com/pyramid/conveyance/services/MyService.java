@@ -44,9 +44,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.pyramid.conveyance.respository.entity.TripRecordLocationRelation;
-import com.pyramid.conveyance.respository.executers.AppExecutors;
-import com.pyramid.conveyance.utility.TrackerUtility;
 import com.pyramid.conveyance.LocationApp;
 import com.pyramid.conveyance.R;
 import com.pyramid.conveyance.api.ApiHandler;
@@ -54,17 +51,19 @@ import com.pyramid.conveyance.api.response.CreateTurnOnGpsRequest;
 import com.pyramid.conveyance.api.response.Ride;
 import com.pyramid.conveyance.respository.databaseclient.DatabaseClient;
 import com.pyramid.conveyance.respository.entity.TripRecord;
+import com.pyramid.conveyance.respository.entity.TripRecordLocationRelation;
+import com.pyramid.conveyance.respository.executers.AppExecutors;
 import com.pyramid.conveyance.respository.syncjob.PostLocationReceiver;
 import com.pyramid.conveyance.respository.syncjob.RecordRideSyncCallback;
 import com.pyramid.conveyance.respository.syncjob.RecordRideSyncJob;
 import com.pyramid.conveyance.respository.syncjob.Result;
 import com.pyramid.conveyance.ui.recordride.RecordRideActivity;
+import com.pyramid.conveyance.utility.TrackerUtility;
 
 import java.io.File;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -122,7 +121,9 @@ public class MyService extends LifecycleService implements LocationListener {
     long runStartTimeInMillis;
     double manualDistance = 0d;
     PendingIntent locationUpdateBroadcaster;
-    //GpsStatusChangeReceiver gpsStatusChangeReceiver;
+    boolean isRecordRideRunning = false;
+
+//GpsStatusChangeReceiver gpsStatusChangeReceiver;
 
     public MyService() {
     }
@@ -164,13 +165,6 @@ public class MyService extends LifecycleService implements LocationListener {
         locationManager.getBestProvider(criteria, true);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         LocationApp.logs("setup location requestLocationUpdates");
@@ -370,36 +364,6 @@ public class MyService extends LifecycleService implements LocationListener {
                     databaseClient.getTripDatabase().tripRecordDao().save(locationTemp);
                 });
 
-
-                /*
-                new Handler(getApplicationContext().getMainLooper()).post(() -> {
-                    String timeStamp = TrackerUtility.getTimeString(new Date());
-                    com.pyramid.conveyance.response.api.conveyance.LocationRequest request = new com.pyramid.conveyance.response.api.conveyance.LocationRequest("", location.getLatitude(), location.getLongitude(), tripId.toString(), timeStamp);
-                    Call<String> createLocationCall = ApiHandler.getClient().createLocation(LocationApp.USER_NAME, LocationApp.DEVICE_ID, request);
-                    createLocationCall.enqueue( new Callback<String>() {
-                        @Override
-                        public void onResponse(Call<String> call, Response<String> response) {
-                            if (response.code() == 201) {
-                                com.pyramid.conveyance.entity.respository.conveyance.Location locationTemp = new com.pyramid.conveyance.entity.respository.conveyance.Location(UUID.fromString(response.body().toString()), location.getLatitude(), location.getLongitude(), false, tripId);
-                                locationList.add(locationTemp);
-                                AppExecutors.getInstance().getMainThread().execute(()->{
-                                    locationListData.postValue(locationList);
-                                });
-                                AppExecutors.getInstance().getDiskIO().execute(()->{
-                                    databaseClient.getTripDatabase().tripRecordDao().save(locationTemp);
-                                });
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Location data sync failed :" + response.errorBody(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<String> call, Throwable t) {
-                            Toast.makeText(getApplicationContext(), "Location data sync failed", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                });*/
-
             });
         } else {
 
@@ -461,8 +425,6 @@ public class MyService extends LifecycleService implements LocationListener {
     }
 
     private void updateNotificationManager(String duration) {
-        //LocationApp.logs("TRIP", "Lat:" + location.getLatitude() + " Long :" + location.getLongitude());
-        //Toast.makeText(context, "Lat:" +location.getLatitude() + " Long :" +location.getLongitude(), Toast.LENGTH_SHORT).show();
         NumberFormat formatter = NumberFormat.getInstance(Locale.US);
         formatter.setMaximumFractionDigits(2);
         formatter.setMinimumFractionDigits(2);
@@ -478,12 +440,13 @@ public class MyService extends LifecycleService implements LocationListener {
         builder.setContentText(message);
         builder.setOngoing(true);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        // This condition ensures you're creating the notification channel only if it doesn't exist
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID) == null) {
             createNotificationChannel(notificationManager);
         }
+
         //notificationManager.notify(1, builder.build());
         startForeground(NOTIFICATION_ID, builder.build());
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -539,6 +502,7 @@ public class MyService extends LifecycleService implements LocationListener {
                     isTrackingOn.postValue(true);
                     break;
                 case STOP_SERVICE:
+                    isRecordRideRunning = false;
                     //context.unregisterReceiver(gpsStatusChangeReceiver);
                     PostLocationReceiver.locationOff = false;
                     if (isTrackingOn == null) {
@@ -582,16 +546,6 @@ public class MyService extends LifecycleService implements LocationListener {
         }
 
         removeNotification();
-
-       /*WorkRequest rideLocationSyncWorkerRequest =
-                new OneTimeWorkRequest.Builder(RideLocationSyncWorker.class)
-                        .build();
-       WorkManager
-               .getInstance(getApplicationContext())
-               .beginWith(((OneTimeWorkRequest) rideLocationSyncWorkerRequest))
-               .enqueue();*/
-
-        //Send unsync location to server before updating ride.
 
 
         AppExecutors.getInstance().getNetworkIO().execute(() -> {
@@ -808,6 +762,7 @@ public class MyService extends LifecycleService implements LocationListener {
     }
 
     private void setupInitialValues() {
+        isRecordRideRunning =true;
         mLastLocation = null;
         manualDistance = 0d;
         mCurrentLocation.postValue(null);
@@ -839,37 +794,6 @@ public class MyService extends LifecycleService implements LocationListener {
         //unregisterReceiver(gpsStatusChangeReceiver);
         //mTimer.cancel();
     }
-
-    /*
-    //class DatabaseServerSyncJob for handling task
-    class RecordRideSyncJob extends TimerTask {
-        int finishTaskCount = 0;
-        @Override
-        public void run() {
-            // run on another thread
-            LocationApp.logs("TRIP", "Timer job is running every one minute : " + TrackerUtility.getTimeString(new Date()));
-            mHandler.post(() -> {
-                // display toast
-                AtomicReference<List<com.pyramid.conveyance.respository.entity.Location>> unSyncList = new AtomicReference<>(new ArrayList<>());
-
-                AppExecutors.getInstance().getDiskIO().execute(()->{
-                    unSyncList.set(databaseClient.getTripDatabase().tripRecordDao().getUnSyncServerLocations());
-                    if (unSyncList.get().size() > 0) {
-                        updateLocationsOnServer(unSyncList.get());
-                        LocationApp.logs("TRIP", "UPDATING RECORDS..");
-                        finishTaskCount = 0;
-                    } else {
-                        if (finishTaskCount++ >= 5) {
-                            cancel();
-                        }
-                    }
-                });
-            });
-
-        }
-
-    } */
-
     public void updateLocationsOnServer(List<com.pyramid.conveyance.respository.entity.Location> unSyncedLocations) {
         updateLocationsOnServer(unSyncedLocations, 0);
     }
@@ -896,15 +820,6 @@ public class MyService extends LifecycleService implements LocationListener {
                             });
 
                         });
-
-                        /*com.pyramid.conveyance.entity.respository.conveyance.Location locationTemp = new com.pyramid.conveyance.entity.respository.conveyance.Location(UUID.fromString(response.body().toString()), location.getLatitude(), location.getLongitude(), false, tripId);
-                        locationList.add(locationTemp);
-                        AppExecutors.getInstance().getMainThread().execute(()->{
-                            locationListData.postValue(locationList);
-                        });
-                        AppExecutors.getInstance().getDiskIO().execute(()->{
-                            databaseClient.getTripDatabase().tripRecordDao().save(locationTemp);
-                        });*/
                     } else {
                         if (retryAttemptCount < 1) {
                             updateLocationsOnServer(unSyncedLocations, 1);
@@ -1073,9 +988,10 @@ public class MyService extends LifecycleService implements LocationListener {
     //This is where we detect the app is being killed, thus stop service.
     @Override
     public void onTaskRemoved(Intent rootIntent) {
+        if(!isRecordRideRunning){
         LocationApp.logs(String.valueOf("Terminated background location service:" + ride != null ? ride.getId() : " null"));
         this.stopUpdatingLocation();
-        stopSelf();
+        stopSelf();}
 
         /*PendingIntent service = PendingIntent.getService(
                 getApplicationContext(),

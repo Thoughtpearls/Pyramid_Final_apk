@@ -54,4 +54,13 @@
     <string name="title_activity_splash_screen">SplashScreenActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="check_network_connection">Please check your network connection</string>
+    <string name="cannot_start_ride_message">Can not start ride at the moment. Please try after some time</string>
+    <string name="account_blocked_message">Can not start ride at the moment. Your account is blocked</string>
+    <string name="issue_starting_ride_message">Issue in starting Ride. Please try after sometime.</string>
+
+    <string name="incomplete_rides_message">Before starting a new ride you need to finish your incomplete or running rides.</string>
+    <string name="ride_start_failure_message">Ride cannot start at the moment. Please try after sometime.</string>
+
 </resources>

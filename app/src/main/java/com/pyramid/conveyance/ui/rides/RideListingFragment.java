@@ -130,17 +130,14 @@ public class RideListingFragment extends Fragment {
 
             recyclerView.setAdapter(new MyItemRecyclerViewAdapter(tripRecordList, context));
             recyclerView.addOnItemTouchListener(
-                    new RecyclerItemClickListener(mActivity, new   RecyclerItemClickListener.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View view, int position) {
-                            // TODO Handle item click
-                            Log.e("@@@@@","" + position);
-                            //Toast.makeText(getContext(), "Test :" + position, Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(mActivity, RideDetailsActivity.class);
-                            intent.putExtra("rideId", tripRecordList.get(position).getId());
-                            intent.putExtra("isInCompleteRide", (tripRecordList.get(position).getRideEndTime() == null));
-                            startActivity(intent);
-                        }
+                    new RecyclerItemClickListener(mActivity, (view1, position) -> {
+                        // TODO Handle item click
+                        Log.e("@@@@@","" + position);
+                        //Toast.makeText(getContext(), "Test :" + position, Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(mActivity, RideDetailsActivity.class);
+                        intent.putExtra("rideId", tripRecordList.get(position).getId());
+                        intent.putExtra("isInCompleteRide", (tripRecordList.get(position).getRideEndTime() == null));
+                        startActivity(intent);
                     })
             );
         }
